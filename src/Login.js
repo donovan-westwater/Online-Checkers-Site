@@ -1,6 +1,6 @@
 import React from 'react';
 import {GoogleLogin} from 'react-google-login';
-const GOOGLE_OAUTH_CLIENT = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT;
+const clientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT;
 
 function Login() {
     const onSuccess = (res)=>{
@@ -11,7 +11,7 @@ function Login() {
     }
     return(
         <GoogleLogin
-            clientId={GOOGLE_OAUTH_CLIENT}
+            clientId={clientId}
             buttonText="Login"
             onSuccess={onSuccess}
             onFailure={onFailure}
