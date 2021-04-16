@@ -9,6 +9,7 @@ class Player(DB.Model):
     """
     id = DB.Column(DB.Integer, primary_key=True)
     username = DB.Column(DB.String(80), unique=True, nullable=False)
+    email = DB.Column(DB.String(254))#max email length
     wins = DB.Column(DB.Integer, nullable=False)
     losses = DB.Column(DB.Integer, nullable=False)
 

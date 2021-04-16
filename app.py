@@ -8,7 +8,6 @@ APP = Flask(__name__, static_folder='./build/static')
 
 load_dotenv(find_dotenv())
 
-
 # Point SQLAlchemy to your Heroku database
 APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 # Gets rid of a warning
@@ -24,6 +23,24 @@ SOCKETIO = SocketIO(APP,
                     json=json,
                     manage_session=False)
 
+@SOCKETIO.on("requestAllStats")
+def request_all_user_stats(data):
+    """
+    """
+    from models import Player
+    all_players = Player.query.all();
+    return_data = [];
+    for p in all_players:
+        return_data.append({"username": p.username, "wins": p.wins, "losses": p.losses})
+    SOCKETIO.emit(
+        'requestAllStatsCallback',
+        return_data,
+        to=data["id"],
+        broadcast=False,
+        include_self=True
+    )
+    return
+    
 @SOCKETIO.on("requestStats")
 def request_user_stats(data):
     """
