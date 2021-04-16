@@ -8,6 +8,7 @@ APP = Flask(__name__, static_folder='./build/static')
 
 load_dotenv(find_dotenv())
 
+
 # Point SQLAlchemy to your Heroku database
 APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 # Gets rid of a warning
