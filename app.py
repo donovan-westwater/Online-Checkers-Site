@@ -63,8 +63,17 @@ def request_user_stats(data):
 def index(filename):
     return send_from_directory('./build', filename)
 
+@SOCKETIO.on("login")
+def login(data):
+    '''Enters user info to database if not already logged in'''
+    print("user logged in",data)
 
-# Note we need to add this line so we can import app in the python shell
+@SOCKETIO.on("logout")
+def logout():
+    '''Logs user out'''
+    print("User logged out")
+
+
 if __name__ == "__main__":
     # Note that we don't call app.run anymore. We call SOCKETIO.run with app arg
     SOCKETIO.run(
