@@ -1,10 +1,12 @@
-import logo from './logo.svg';
 import Home from './Home.js';
+import io from 'socket.io-client';
+
+const socket = io(); //Socket connection
 
 function App() {
   return (
     <div>
-      <Home/>
+      <Home socket={socket}/>
     </div>
   )
 }

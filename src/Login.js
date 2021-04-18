@@ -3,8 +3,10 @@ import {GoogleLogin} from 'react-google-login';
 const clientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT;
 
 function Login(props) {
+    const socket = props.socket;
     const onSuccess = (res)=>{
-        console.log('Login Success currentUser:',res.profileObj);
+        console.log(res.profileObj.name);
+        socket.emit('login',res.profileObj);
         props.func(true);
     }
     const onFailure = (res)=>{

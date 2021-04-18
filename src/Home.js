@@ -2,12 +2,12 @@ import {React, useState} from 'react';
 import Login from './Login.js';
 import Logout from './Logout.js';
 
-
-function Home(){
+function Home(props){
+    const socket = props.socket;
     const [logged, setLogin] = useState(false);
     return(
         <div>
-            {logged?<Logout func={setLogin}/>:<Login func={setLogin}/>}
+            {logged?<Logout socket={socket} func={setLogin}/>:<Login socket={socket} func={setLogin}/>}
         </div>
     );
 }
