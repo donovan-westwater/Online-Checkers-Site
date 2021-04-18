@@ -12,6 +12,7 @@ function Logout(props) {
     }
     return (
         <div>
+            <h1>Welcome {props.user}</h1>
             <GoogleLogout
                 clientId={clientId}
                 buttonText="Logout"

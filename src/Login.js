@@ -6,6 +6,7 @@ function Login(props) {
     const socket = props.socket;
     const onSuccess = (res)=>{
         console.log(res.profileObj.name);
+        props.setUser(res.profileObj.name);
         socket.emit('login',res.profileObj);
         props.func(true);
     }
@@ -13,7 +14,9 @@ function Login(props) {
         console.log('[Login failed] res:',res);
     }
     return(
-        <GoogleLogin
+        <div>
+            <h1>Welcome to Online Checkers!</h1>
+            <GoogleLogin
             clientId={clientId}
             buttonText="Login"
             onSuccess={onSuccess}
@@ -21,7 +24,8 @@ function Login(props) {
             cookiePolicy={'single_host_origin'}
             style={{ marginTop: '100px' }}
             isSignedIn={true}
-        />
+            />
+        </div>
     );
 }
 
