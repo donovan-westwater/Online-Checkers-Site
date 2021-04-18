@@ -1,25 +1,24 @@
-/* Color everything green */
-.checkerboard div {
-    width: 600px; /* Total horizontal dimensions */
-	  height: 600px; /* Total vertical dimensions */
-    display:inline-block;
-    background-color: #fff;
-    background-image:  linear-gradient(
-           45deg,
-      #000 25%,
-      transparent 25%,
-      transparent 75%,
-      #000 75%,
-      #000
-    ),
-    linear-gradient(
-      -45deg,
-      #000 25%,
-      transparent 25%,
-      transparent 75%,
-      #000 75%,
-      #000
-    );
-  background-size: 60px 60px;
-  background-repeat: repeat;
+
+/*This is an entire checkerboard*/
+.checkerboard{
+  width: 300px; /* Total horizontal dimensions */
+	height: 300px;
+	display: grid; /* Enables CSS Grid */
+  align-self: flex-start;
+	grid-template-columns: repeat(8, 1fr); /* Total horizontal space broken into 8 columns */
+  grid-template-rows: repeat(8, 1fr); /* Total vertical space broken into 8 rows */
+}
+
+.redcell{
+  border: 1px solid red;
+  background-color: #ff0000;
+}
+.blackcell{
+  border: 1px solid black;
+  background-color: #000000;
+}
+
+.selectedcell{
+  border: 1px solid black;
+  background-color: #f0f;
 }

@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import './Match.css';
+import {MatchComp} from './Match';
 
 function App() {
   return (
@@ -19,7 +19,7 @@ function App() {
           Learn React
         </a>
       </header>
-      <div className="checkerboard"></div>
+      <MatchComp> test </MatchComp>
     </div>
   );
 }
