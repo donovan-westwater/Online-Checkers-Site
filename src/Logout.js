@@ -1,5 +1,6 @@
 import React from 'react';
 import { GoogleLogout } from 'react-google-login';
+import StatsComponent from './Stats.js';
 
 const clientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT
 
@@ -13,6 +14,7 @@ function Logout(props) {
     return (
         <div>
             <h1>Welcome {props.user}</h1>
+            <StatsComponent socket={socket}/>
             <GoogleLogout
                 clientId={clientId}
                 buttonText="Logout"

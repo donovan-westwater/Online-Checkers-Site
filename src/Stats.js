@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 
-import io from 'socket.io-client';
-
-const socket = io(); // Connects to socket connection
 
 function StatsComponent(props) {
+    const socket = props.socket;
     const [stats, setStats] = useState([]);
     
     useEffect(() => {
