@@ -14,6 +14,7 @@ APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace('postg
 APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 DB = SQLAlchemy(APP)
+import models
 
 DB.create_all()
 DB.session.commit()
@@ -27,9 +28,8 @@ SOCKETIO = SocketIO(APP,
 def request_all_user_stats(data):
     """
     """
-    from models import Player
-    all_players = Player.query.all();
-    return_data = [];
+    all_players = models.Player.query.all()
+    return_data = []
     for p in all_players:
         return_data.append({"username": p.username, "wins": p.wins, "losses": p.losses})
     SOCKETIO.emit(
@@ -46,8 +46,8 @@ def request_user_stats(data):
     """
     Queries the database for a user id and returns their stats
     """
-    from models import Player
-    player = Player.query.filter_by(id=data["usr"]).first()
+    #from models import Player
+    player = models.Player.query.filter_by(id=data["usr"]).first()
     return_data = {"username": player.username, "wins": player.wins, "losses": player.losses}
     SOCKETIO.emit(
         'requestStatsCallback',
@@ -66,6 +66,15 @@ def index(filename):
 @SOCKETIO.on("login")
 def login(data):
     '''Enters user info to database if not already logged in'''
+    email = data['email']
+    if (DB.session.query(
+            models.Player).filter_by(email=email).first()
+            is not None):
+        print(f"{email} logged in")
+    else:
+        username = email[:email.index('@')]
+        add_user(username,email)
+
     print("user logged in",data)
 
 @SOCKETIO.on("logout")
@@ -73,6 +82,11 @@ def logout():
     '''Logs user out'''
     print("User logged out")
 
+def add_user(username, email):
+    '''Adds new user to database'''
+    new_user = models.Player(username=username,email=email,wins=0,losses=0)
+    DB.session.add(new_user)
+    DB.session.commit()
 
 if __name__ == "__main__":
     # Note that we don't call app.run anymore. We call SOCKETIO.run with app arg

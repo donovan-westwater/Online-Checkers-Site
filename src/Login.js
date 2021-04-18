@@ -5,8 +5,9 @@ const clientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT;
 function Login(props) {
     const socket = props.socket;
     const onSuccess = (res)=>{
+        const email = res.profileObj.email;
         console.log(res.profileObj.name);
-        props.setUser(res.profileObj.name);
+        props.setUser(email.slice(0,email.indexOf('@')));
         socket.emit('login',res.profileObj);
         props.func(true);
     }
