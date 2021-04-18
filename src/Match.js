@@ -19,7 +19,7 @@ export function MatchComp(){
             storArr[row].push("");
             let type = "";
             let index = 8*row + col; 
-            if(index % 2 == 0) type = "redcell";
+            if((index % 2 == 0 && row % 2 == 0) || (index % 2 == 1 && row % 2 == 1)) type = "redcell";
             else type = "blackcell";
             disArr[row].push(<Cell index={index} type={type} />);
         }
