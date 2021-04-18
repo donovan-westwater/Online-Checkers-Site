@@ -66,6 +66,15 @@ def index(filename):
 @SOCKETIO.on("login")
 def login(data):
     '''Enters user info to database if not already logged in'''
+    email = data['email']
+    if (DB.session.query(
+            models.Player).filter_by(email=email).first()
+            is not None):
+        print(f"{email} logged in")
+    else:
+        username = email[:email.index('@')]
+        add_user(username,email)
+
     print("user logged in",data)
 
 @SOCKETIO.on("logout")
@@ -73,6 +82,11 @@ def logout():
     '''Logs user out'''
     print("User logged out")
 
+def add_user(username, email):
+    '''Adds new user to database'''
+    new_user = models.Player(username=username,email=email,wins=0,losses=0)
+    DB.session.add(new_user)
+    DB.session.commit()
 
 if __name__ == "__main__":
     # Note that we don't call app.run anymore. We call SOCKETIO.run with app arg

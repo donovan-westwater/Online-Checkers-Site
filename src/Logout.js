@@ -6,6 +6,7 @@ const clientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT
 
 function Logout(props) {
     const socket = props.socket;
+    const user = props.user;
     const onSuccess = () => {
         console.log("Logout success");
         socket.emit('logout');
@@ -13,7 +14,7 @@ function Logout(props) {
     }
     return (
         <div>
-            <h1>Welcome {props.user}</h1>
+            <h1>Welcome {user}</h1>
             <StatsComponent socket={socket}/>
             <GoogleLogout
                 clientId={clientId}
