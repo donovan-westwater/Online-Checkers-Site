@@ -1,6 +1,10 @@
 import logo from './logo.svg';
 import './App.css';
 import {MatchComp} from './Match';
+import Home from './Home.js';
+import io from 'socket.io-client';
+
+const socket = io(); //Socket connection
 
 function App() {
   return (
@@ -20,8 +24,9 @@ function App() {
         </a>
       </header>
       <MatchComp> test </MatchComp>
+      <Home socket={socket}/>
     </div>
-  );
+  )
 }
 
 export default App;

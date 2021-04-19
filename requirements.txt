@@ -1,1 +1,7 @@
 Flask
+Flask-SocketIO
+python-socketio
+Flask-SQLAlchemy
+python-dotenv
+SQLAlchemy
+psycopg2-binary

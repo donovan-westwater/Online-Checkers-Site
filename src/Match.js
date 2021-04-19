@@ -11,6 +11,7 @@ let activeUser = "";
 export function MatchComp(){
     const disArr = [];
     const storArr = [];
+    //Setup click function
     //Setup gameboard
     for (let row = 0; row < 8; row ++) {
         disArr.push([])
