@@ -1,16 +1,54 @@
 import os
-from flask import Flask, send_from_directory
+from flask import Flask, send_from_directory, json
+from flask_socketio import SocketIO
+APP = Flask(__name__, static_folder='./build/static')
 
-app = Flask(__name__, static_folder='./build/static')
+SOCKETIO = SocketIO(APP,
+                    cors_allowed_origins="*",
+                    json=json,
+                    manage_session=False)
 
-
-@app.route('/', defaults={"filename": "index.html"})
-@app.route('/<path:filename>')
+@APP.route('/', defaults={"filename": "index.html"})
+@APP.route('/<path:filename>')
 def index(filename):
     return send_from_directory('./build', filename)
+#Sockets go here. These are only for the game side of things
+
+@SOCKETIO.on('board')
+def on_board(data):  # data is whatever arg you pass in your emit call on client
+    """Used for debug purposes."""
+    #print(str(data))
+    # This emits the 'chat' event from the server to all clients except for
+    # the client that emmitted the event that triggered this function
+    SOCKETIO.emit('board', data, broadcast=True, include_self=False)
 
 
-app.run(
-    host=os.getenv('IP', '0.0.0.0'),
-    port=8081 if os.getenv('C9_PORT') else int(os.getenv('PORT', 8081)),
-)
+@SOCKETIO.on('change-turn')
+def on_change_turn(data):
+    """Called when player ends turn"""
+    print(data)
+    SOCKETIO.emit('change-turn', data, broadcast=True, include_self=False)
+
+#When a client joins / starts a game from the home menu
+@SOCKETIO.on('join-game')
+def on_join_game(data):  # data is whatever arg you pass in your emit call on client
+    """Used for debug purposes."""
+    #print(str(data))
+    # This emits the 'chat' event from the server to all clients except for
+    # the client that emmitted the event that triggered this function
+    SOCKETIO.emit('join-game', data, broadcast=True, include_self=False)
+
+
+# When a client disconnects from this Socket connection, this function is run
+@SOCKETIO.on('disconnect')
+def on_disconnect():
+    """Called on disconnect"""
+    print('User disconnected and left the game!')
+    
+if __name__ == "__main__":
+    # Note that we don't call app.run anymore. We call SOCKETIO.run with app arg
+    SOCKETIO.run(
+        APP,
+        host=os.getenv('IP', '0.0.0.0'),
+        port=8081 if os.getenv('C9_PORT') else int(os.getenv('PORT', 8081)),
+    )

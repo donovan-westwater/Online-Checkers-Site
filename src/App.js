@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import {MatchComp} from './Match';
-import Home from './Home.js';
+
 import io from 'socket.io-client';
 
 const socket = io(); //Socket connection
@@ -24,9 +24,9 @@ function App() {
         </a>
       </header>
       <MatchComp> test </MatchComp>
-      <Home socket={socket}/>
+      
     </div>
   )
 }
-
+//<Home socket={socket}/> Move this back in when board is fully functional
 export default App;
