@@ -33,13 +33,31 @@ export function MatchComp(){
         console.log("Clicked on a square: "+index);
         let col = index % 8;
         let row = (index - col) / 8;
-        let cell = board[row][col];
         let newBoard = [...board];
         if(!isSelected){
             setSelect(true);
             setCell(index);
         }else{
             //Move part goes here
+            console.log(newBoard);
+            let scol = selectedCell % 8;
+            let srow = (selectedCell-scol)/8;
+            let scell = board[srow][scol];
+            setBoard((prevBoard) => {
+              /*const b = [...Array(8)].map((v,i) => {
+                  let inner = [...prevBoard[i]]
+                  return inner;
+              });
+              */
+              const b = [...prevBoard];
+              b[srow][scol] = "";
+              b[row][col] = scell;
+              console.log(b);
+              socket.emit("board", {b});
+              return b;
+            });
+            
+
             console.log("MOVED!");
             setSelect(false);
             setCell(-1);
@@ -48,13 +66,14 @@ export function MatchComp(){
         //socket.emit("board", {newBoard});
     }
     
-    console.log("--------------");
-    console.log(board);
-    console.log("--------------");
+    //console.log("--------------");
+    //console.log(board);
+    //console.log("--------------");
     
     React.useEffect(() => {
     socket.on("board", (data) => {
-      const upBoard = data.newBoard;
+      console.log(data);
+      const upBoard = data.b;
       console.log("CALLDED");
       setBoard(upBoard);
     });
@@ -74,8 +93,9 @@ export function MatchComp(){
     return (
     <div role="grid" data-testid="gameboard" className="checkerboard">
         {board.map(function(row,rowIndex){
+            //console.log(board);
             return row.map(function(cell,colIndex){
-                console.log(colIndex);
+                //console.log(colIndex);
                 let index = 8*rowIndex+colIndex;
                 let selected = false;
                 if(index == selectedCell) selected = true;
