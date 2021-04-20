@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { GoogleLogout } from 'react-google-login';
 import StatsComponent from './Stats.js';
 import Game from './NewGame.js';
+import {MatchComp} from './Match';
 
 const clientId = process.env.REACT_APP_GOOGLE_OAUTH_CLIENT
 
@@ -17,7 +18,10 @@ function Logout(props) {
     return (
         <div>
             {game ? (
-                <h1>Game on</h1>
+                <div>
+                    <h1>Game on</h1>
+                    <MatchComp> test </MatchComp>
+                </div>
                 ):(
                 <div> 
                     <h1>Welcome {user}</h1>

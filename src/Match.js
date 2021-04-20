@@ -14,10 +14,10 @@ export function MatchComp(){
         inner.fill("");
         for(let j = 0;j < 8;j++){
             if(i < 3){
-                if((i % 2 == 0 && j % 2==1) || (i%2==1 && j%2==0)) inner[j] = "X";
+                if((i % 2 === 0 && j % 2===1) || (i%2===1 && j%2===0)) inner[j] = "X";
             }
             else if( i > 4){
-                if((i % 2 == 0 && j % 2==1) || (i%2==1 && j%2==0)) inner[j] = "O";
+                if((i % 2 === 0 && j % 2===1) || (i%2===1 && j%2===0)) inner[j] = "O";
             }
         }
         return inner;
@@ -36,7 +36,7 @@ export function MatchComp(){
         let row = (index - col) / 8;
         let newBoard = [...board];
         console.log(players);
-        if(players[user] == playerTurn){
+        if(players[user] === playerTurn){
             if(!isSelected){
                 setSelect(true);
                 setCell(index);
@@ -65,7 +65,7 @@ export function MatchComp(){
                 setSelect(false);
                 setCell(-1);
                 //Move on to next turn here
-                if(playerTurn == "Player 1") setTurn("Player 2");
+                if(playerTurn === "Player 1") setTurn("Player 2");
                 else setTurn("Player 1");
             }
         }
@@ -90,11 +90,11 @@ export function MatchComp(){
     
     socket.on("join-game", (data) => {
         let newCount = playerCount+1;
-        if(newCount == 1){
+        if(newCount === 1){
             let newPlayers = {}
             newPlayers[data] = "Player 1";
             setPlayers(newPlayers);
-        }else if(newCount == 2){
+        }else if(newCount === 2){
             setPlayers((prevPlayers)=>{
                 let newPlayers = prevPlayers;
                 newPlayers[data] = "Player 2";
@@ -116,7 +116,7 @@ export function MatchComp(){
                 //console.log(colIndex);
                 let index = 8*rowIndex+colIndex;
                 let selected = false;
-                if(index == selectedCell) selected = true;
+                if(index === selectedCell) selected = true;
                 return <Cell index={index} click ={() => onCellClick(index)} select={selected} symbol={cell} />;
             })
         }
