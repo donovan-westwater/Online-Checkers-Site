@@ -9,8 +9,19 @@ let loginStatus = false;
 let activeUser = "";
 
 export function MatchComp(){
-    const disArr = [];
-    const storArr = [];
+    const disArr =  [...Array(8)].map((v,i) =>{ 
+        let inner = new Array(8);
+        inner.fill("");
+        for(let j = 0;j < 8;j++){
+            if(i < 3){
+                if((i % 2 == 0 && j % 2==1) || (i%2==1 && j%2==0)) inner[j] = "X";
+            }
+            else if( i > 4){
+                if((i % 2 == 0 && j % 2==1) || (i%2==1 && j%2==0)) inner[j] = "O";
+            }
+        }
+        return inner;
+});
     const [board, setBoard] = React.useState(disArr);
     const [playerTurn, setTurn] = React.useState("Player 1");
     const [playerCount, setpCount] = React.useState(0); 
@@ -23,57 +34,24 @@ export function MatchComp(){
         let col = index % 8;
         let row = (index - col) / 8;
         let cell = board[row][col];
-        let oldSym = cell.props.symbol;
         let newBoard = [...board];
-        console.log(board);
-        console.log(isSelected);
         if(!isSelected){
-            newBoard[row][col] = <Cell index={index} click ={() => onCellClick(index)} type="selectedcell" symbol="0" />;
-            console.log(newBoard[row][col]);
-            setCell(index);
             setSelect(true);
-            
-        } else{
-            let type = "";
-            if((index % 2 == 0 && row % 2 == 0) || (index % 2 == 1 && row % 2 == 1)) type = "redcell";
-            else type = "blackcell";
-            let scol = selectedCell % 8;
-            let srow = (selectedCell - scol) / 8;
-            newBoard[srow][scol] = <Cell index={selectedCell} click ={() => onCellClick(selectedCell)} type={type} symbol={oldSym} />;
-            setCell(-1);
+            setCell(index);
+        }else{
+            //Move part goes here
+            console.log("MOVED!");
             setSelect(false);
+            setCell(-1);
+            //Move on to next turn here
         }
-        console.log(newBoard);
-        setBoard(newBoard);
         //socket.emit("board", {newBoard});
     }
-    if(playerCount == 0){
-    //Setup gameboard
-        for (let row = 0; row < 8; row ++) {
-            disArr.push([])
-            storArr.push([])
-            for (let col = 0; col < 8; col ++) {
-                storArr[row].push("");
-                let type = "";
-                let index = 8*row + col; 
-                if((index % 2 == 0 && row % 2 == 0) || (index % 2 == 1 && row % 2 == 1)) type = "redcell";
-                else type = "blackcell";
-                disArr[row].push(<Cell index={index} click ={() => onCellClick(index)} type={type} symbol="" />);
-            }
-        }
-    }
+    
     console.log("--------------");
     console.log(board);
     console.log("--------------");
-    //Joining a game
-    if(playerCount < 2){
-        if(playerCount == 1){
-            //
-        }
-        if(playerCount == 2){
-            
-        }
-    }
+    
     React.useEffect(() => {
     socket.on("board", (data) => {
       const upBoard = data.newBoard;
@@ -95,8 +73,44 @@ export function MatchComp(){
     
     return (
     <div role="grid" data-testid="gameboard" className="checkerboard">
-        {board}
+        {board.map(function(row,rowIndex){
+            return row.map(function(cell,colIndex){
+                console.log(colIndex);
+                let index = 8*rowIndex+colIndex;
+                let selected = false;
+                if(index == selectedCell) selected = true;
+                return <Cell index={index} click ={() => onCellClick(index)} select={selected} symbol={cell} />;
+            })
+        }
+    )}
     </div>
         );
     
 }
+
+
+
+/* How to change board state - i var and newData var come from out of scope
+setBoard((prevBoard) => {
+      const b = [...prevBoard];
+      b[i] = newData;
+      return b;
+}
+
+
+
+
+//Setup gameboard
+        for (let row = 0; row < 8; row ++) {
+            disArr.push([])
+            storArr.push([])
+            for (let col = 0; col < 8; col ++) {
+                storArr[row].push("");
+                let type = "";
+                let index = 8*row + col; 
+                if((index % 2 == 0 && row % 2 == 0) || (index % 2 == 1 && row % 2 == 1)) type = "redcell";
+                else type = "blackcell";
+                disArr[row].push(<Cell index={index} click ={() => onCellClick(index)} type={type} symbol="" />);
+            }
+        }
+*/
