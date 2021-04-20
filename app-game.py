@@ -2,7 +2,7 @@ import os
 from flask import Flask, send_from_directory, json
 from flask_socketio import SocketIO
 APP = Flask(__name__, static_folder='./build/static')
-
+PLAYER = 1
 SOCKETIO = SocketIO(APP,
                     cors_allowed_origins="*",
                     json=json,
@@ -49,7 +49,10 @@ def on_disconnect():
 def on_connect():
     """Called on connect"""
     print('User connected and joined the game!')
-    SOCKETIO.emit('join-game',"USERNAME", broadcast=True, include_self=True)
+    global PLAYER
+    PLAYER += 1
+    name = "Username"+str(PLAYER)
+    SOCKETIO.emit('join-game',name, broadcast=True, include_self=True)
     
 if __name__ == "__main__":
     # Note that we don't call app.run anymore. We call SOCKETIO.run with app arg
