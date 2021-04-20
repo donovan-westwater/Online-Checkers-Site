@@ -88,6 +88,7 @@ def add_user(username, email):
     DB.session.add(new_user)
     DB.session.commit()
 
+
 if __name__ == "__main__":
     # Note that we don't call app.run anymore. We call SOCKETIO.run with app arg
     SOCKETIO.run(
