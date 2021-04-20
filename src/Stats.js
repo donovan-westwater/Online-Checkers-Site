@@ -24,7 +24,7 @@ function StatsComponent(props) {
     
     return (
         <div>
-        <button onClick={pingAllUserStats}>Test</button>
+        <button onClick={pingAllUserStats}>Stats</button>
         {stats.map((player, index) => (
                 <tr
                   className={
