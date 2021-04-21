@@ -1,0 +1,8 @@
+[MASTER]
+
+disable=
+    no-member,
+    wrong-import-position,
+    invalid-envvar-default,
+    R0903,
+    W0603,
