@@ -20,7 +20,7 @@ function Logout(props) {
             {game ? (
                 <div>
                     <h1>Game on</h1>
-                    <MatchComp> test </MatchComp>
+                    <MatchComp socket={socket}> test </MatchComp>
                 </div>
                 ):(
                 <div> 

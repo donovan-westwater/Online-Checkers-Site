@@ -3,12 +3,13 @@ import "./Match.css";
 import io from "socket.io-client";
 import { Cell } from "./cell";
 
-const socket = io();
+//const socket = io();
 
 let loginStatus = false;
 let activeUser = "";
 
-export function MatchComp(){
+export function MatchComp(props){
+    const socket = props.socket;
     const disArr =  [...Array(8)].map((v,i) =>{ 
         let inner = new Array(8);
         inner.fill("");
@@ -24,20 +25,24 @@ export function MatchComp(){
 });
     const [board, setBoard] = React.useState(disArr);
     const [playerTurn, setTurn] = React.useState("Player 1");
-    const [playerCount, setpCount] = React.useState(0); 
+    //const [playerCount, setpCount] = React.useState(0); 
     const [players,setPlayers] = React.useState({});
     const [user,setUser] = React.useState("");
     const [isSelected,setSelect] = React.useState(false);
     const [selectedCell,setCell] = React.useState(-1);
     //Setup click function
     function onCellClick(index){
+        console.log(playerTurn);
         console.log("Clicked on a square: "+index);
         let col = index % 8;
         let row = (index - col) / 8;
         let newBoard = [...board];
         console.log(players);
+        console.log(user);
         if(players[user] === playerTurn){
+            console.log("In the if");
             if(!isSelected){
+                console.log("Selected");
                 setSelect(true);
                 setCell(index);
             }else{
@@ -65,11 +70,17 @@ export function MatchComp(){
                 setSelect(false);
                 setCell(-1);
                 //Move on to next turn here
-                if(playerTurn === "Player 1") setTurn("Player 2");
-                else setTurn("Player 1");
+                if(playerTurn === "Player 1"){
+                    setTurn("Player 2");
+                    socket.emit("change-turn", "Player 2");
+                }
+                else{
+                    setTurn("Player 1");
+                    socket.emit("change-turn", "Player 1");
+                };
             }
         }
-        //socket.emit("board", {newBoard});
+        
     }
     
     //console.log("--------------");
@@ -88,23 +99,13 @@ export function MatchComp(){
       setTurn(data);
     });
     
-    socket.on("join-game", (data) => {
-        let newCount = playerCount+1;
-        if(newCount === 1){
-            let newPlayers = {}
-            newPlayers[data] = "Player 1";
-            setPlayers(newPlayers);
-        }else if(newCount === 2){
-            setPlayers((prevPlayers)=>{
-                let newPlayers = prevPlayers;
-                newPlayers[data] = "Player 2";
-            });
-        }
-        console.log(newCount);
-        console.log("Old count: "+playerCount);
-        console.log(data);
-        setpCount(newCount);
+    socket.on("add-user", (data)=>{
+        console.log("add-user event");
         setUser(data);
+    });
+
+    socket.on("join-game", (data) => {
+        setPlayers(data);
     });
   }, []);
     
