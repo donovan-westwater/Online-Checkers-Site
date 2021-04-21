@@ -11,17 +11,12 @@ function StatsComponent(props) {
     });
   }, []);
 
-  function pingServerForUser() {
-    socket.emit('requestStats', { id: socket.id, usr: 1 });
-  }
-
   function pingAllUserStats() {
     socket.emit('requestAllStats', { id: socket.id });
   }
 
   return (
     <div>
-      <button type="button" onClick={pingServerForUser}>My Stats</button>
       <button type="button" onClick={pingAllUserStats}>Stats</button>
       {stats.map((player, index) => (
         <tr
