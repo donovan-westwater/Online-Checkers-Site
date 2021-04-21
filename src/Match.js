@@ -1,7 +1,7 @@
-import React from "react";
-import "./Match.css";
-import io from "socket.io-client";
-import { Cell } from "./cell";
+import React from 'react';
+import './Match.css';
+import io from 'socket.io-client';
+import { Cell } from './cell';
 
 //const socket = io();
 
@@ -52,11 +52,6 @@ export function MatchComp(props){
                 let srow = (selectedCell-scol)/8;
                 let scell = board[srow][scol];
                 setBoard((prevBoard) => {
-                  /*const b = [...Array(8)].map((v,i) => {
-                      let inner = [...prevBoard[i]]
-                      return inner;
-                  });
-                  */
                   const b = [...prevBoard];
                   b[srow][scol] = "";
                   b[row][col] = scell;
@@ -82,52 +77,55 @@ export function MatchComp(props){
         }
         
     }
-    
-    //console.log("--------------");
-    //console.log(board);
-    //console.log("--------------");
-    
-    React.useEffect(() => {
-    socket.on("board", (data) => {
+    // socket.emit("board", {newBoard});
+  }
+
+  // console.log("--------------");
+  // console.log(board);
+  // console.log("--------------");
+
+  React.useEffect(() => {
+    socket.on('board', (data) => {
       console.log(data);
       const upBoard = data.b;
-      console.log("CALLDED");
+      console.log('CALLDED');
       setBoard(upBoard);
     });
 
-    socket.on("change-turn", (data) => {
+    socket.on('change-turn', (data) => {
       setTurn(data);
-    });
-    
+    }); 
     socket.on("add-user", (data)=>{
         console.log("add-user event");
         setUser(data);
+
     });
 
     socket.on("join-game", (data) => {
         setPlayers(data);
     });
   }, []);
-    
-    return (
+
+  return (
     <div role="grid" data-testid="gameboard" className="checkerboard">
-        {board.map(function(row,rowIndex){
-            //console.log(board);
-            return row.map(function(cell,colIndex){
-                //console.log(colIndex);
-                let index = 8*rowIndex+colIndex;
-                let selected = false;
-                if(index === selectedCell) selected = true;
-                return <Cell index={index} click ={() => onCellClick(index)} select={selected} symbol={cell} />;
-            })
-        }
-    )}
-    </div>
+      {board.map((row, rowIndex) => row.map((cell, colIndex) => {
+        const index = 8 * rowIndex + colIndex;
+        let selected = false;
+        if (index === selectedCell) selected = true;
+        return (
+          <Cell
+            index={index}
+            click={() => onCellClick(index)}
+            select={selected}
+            symbol={cell}
+          />
         );
-    
+      }))}
+    </div>
+  );
 }
 
-
+export default MatchComp;
 
 /* How to change board state - i var and newData var come from out of scope
 setBoard((prevBoard) => {
@@ -136,9 +134,6 @@ setBoard((prevBoard) => {
       return b;
 }
 
-
-
-
 //Setup gameboard
         for (let row = 0; row < 8; row ++) {
             disArr.push([])
@@ -146,10 +141,14 @@ setBoard((prevBoard) => {
             for (let col = 0; col < 8; col ++) {
                 storArr[row].push("");
                 let type = "";
-                let index = 8*row + col; 
-                if((index % 2 == 0 && row % 2 == 0) || (index % 2 == 1 && row % 2 == 1)) type = "redcell";
+                let index = 8*row + col;
+                if((index % 2 == 0 && row % 2 == 0) || (index % 2 == 1 && row % 2 == 1)) {
+                  type = "redcell";
+                }
                 else type = "blackcell";
-                disArr[row].push(<Cell index={index} click ={() => onCellClick(index)} type={type} symbol="" />);
+                disArr[row].push(
+                  <Cell index={index} click ={() => onCellClick(index)} type={type} symbol="" />
+                );
             }
         }
 */
