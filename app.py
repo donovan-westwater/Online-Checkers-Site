@@ -24,6 +24,31 @@ SOCKETIO = SocketIO(APP,
                     json=json,
                     manage_session=False)
 
+PLAYER = 1
+
+@SOCKETIO.on('board')
+def on_board(data):  # data is whatever arg you pass in your emit call on client
+    """Used for debug purposes."""
+    print(str(data))
+    # This emits the 'chat' event from the server to all clients except for
+    # the client that emmitted the event that triggered this function
+    SOCKETIO.emit('board', data, broadcast=True, include_self=False)
+
+@SOCKETIO.on('connect-game')
+def on_connect():
+    """Called on connect"""
+    print('User connected and joined the game!')
+    global PLAYER
+    PLAYER += 1
+    name = "Username"+str(PLAYER)
+    SOCKETIO.emit('join-game',name, broadcast=True, include_self=True)
+
+@SOCKETIO.on('change-turn')
+def on_change_turn(data):
+    """Called when player ends turn"""
+    print(data)
+    SOCKETIO.emit('change-turn', data, broadcast=True, include_self=False)
+
 @SOCKETIO.on("requestAllStats")
 def request_all_user_stats(data):
     """
@@ -82,6 +107,7 @@ def login(data):
 @SOCKETIO.on("logout")
 def logout():
     '''Logs user out'''
+    PLAYER -= 1
     print("User logged out")
 
 def add_user(username, email):

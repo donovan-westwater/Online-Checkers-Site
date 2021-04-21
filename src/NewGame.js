@@ -6,6 +6,7 @@ function Game(props) {
     const setGame = props.func;
     function onClick(){
         console.log(user);
+        socket.emit("connect-game")
         setGame(true);
     }
     return (

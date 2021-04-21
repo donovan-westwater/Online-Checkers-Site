@@ -26,7 +26,7 @@ function Logout(props) {
                 <div> 
                     <h1>Welcome {user}</h1>
                     <StatsComponent socket={socket}/>
-                    <Game socekt={socket} user={user} func={setGame}/>
+                    <Game socket={socket} user={user} func={setGame}/>
                 </div>
             )}
             <GoogleLogout
