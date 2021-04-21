@@ -25,7 +25,6 @@ function Login(props) {
         onFailure={onFailure}
         cookiePolicy="single_host_origin"
         style={{ marginTop: '100px' }}
-        isSignedIn
       />
     </div>
   );

@@ -12,7 +12,7 @@ function Logout(props) {
   const [game, setGame] = useState(false);
   const onSuccess = () => {
     console.log('Logout success');
-    socket.emit('logout');
+    socket.emit('logout', { user });
     props.func(false);
   };
   return (

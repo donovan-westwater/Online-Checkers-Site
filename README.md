@@ -17,3 +17,16 @@
 1. Create a Heroku app: `heroku create --buildpack heroku/python`
 2. Add nodejs buildpack: `heroku buildpacks:add --index 1 heroku/nodejs`
 3. Push to Heroku: `git push heroku main`
+
+##Eslint
+1. react/no-array-index-key: allowed by project 2
+2. react-hooks/exhaustive-deps: allowed by project 2
+3. react/jsx-filename-extension: allowed by project 2
+    
+4. react/prop-types: group needs to decide if we want this syntax or not, will be resolved by sprint 2
+5. no-console: this will stay until sprint 2 for debugging
+    
+6. import/no-extraneous-dependencies: will be removed later
+
+##Pylint
+All allowed errors from project 2

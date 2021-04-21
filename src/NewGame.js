@@ -7,7 +7,7 @@ function Game(props) {
 
   function onClick() {
     console.log(user);
-    socket.emit('connect-game', { id: socket.id });
+    socket.emit('connect-game', { user, id: socket.id });
     func(true);
   }
 

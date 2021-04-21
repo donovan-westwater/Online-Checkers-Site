@@ -1,3 +1,6 @@
+"""
+Server for online checkers
+"""
 import os
 from flask import Flask, send_from_directory, json
 from flask_sqlalchemy import SQLAlchemy
@@ -9,7 +12,7 @@ APP = Flask(__name__, static_folder='./build/static')
 load_dotenv(find_dotenv())
 
 # Point SQLAlchemy to your Heroku database
-APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace('postgres','postgresql')
+APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace('postgres', 'postgresql')
 # Gets rid of a warning
 APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -18,14 +21,15 @@ import models
 
 DB.create_all()
 DB.session.commit()
-        
+
 SOCKETIO = SocketIO(APP,
                     cors_allowed_origins="*",
                     json=json,
                     manage_session=False)
 
-PLAYERCOUNT = 0
-PLAYERS = {}
+P1 = None
+P2 = None
+TURN = None
 
 @SOCKETIO.on('board')
 def on_board(data):  # data is whatever arg you pass in your emit call on client
@@ -39,33 +43,47 @@ def on_board(data):  # data is whatever arg you pass in your emit call on client
 def on_connect(data):
     """Called on connect"""
     print('User connected and joined the game!')
-    global PLAYERCOUNT
-    PLAYERCOUNT+=1
-    name = "Username"+str(PLAYERCOUNT)
-    print("ID: ",data['id'])
-    if PLAYERCOUNT==1:
-        PLAYERS[name] = "Player 1"
+    global P1, P2, TURN
+    print("ID: ", data['id'])
+
+    if TURN is None:
+        TURN = data["user"]
+        print("Initial turn", TURN)
+    if P1 is None:
+        P1 = data["user"]
+        print("Name: ", P1)
     else:
-        PLAYERS[name] = "Player 2"
-    print("Name: ",name)
-    SOCKETIO.emit('add-user', name, to=data['id'], broadcast=False, include_self=True)
-    SOCKETIO.emit('join-game', PLAYERS, broadcast=True, include_self=True)
+        P2 = data["user"]
+        print("Name: ", P2)
+
+    SOCKETIO.emit('add-user', data["user"], to=data['id'], broadcast=False, include_self=True)
+    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+    #SOCKETIO.emit('join-game', PLAYERS, broadcast=True, include_self=True)
 
 @SOCKETIO.on('change-turn')
-def on_change_turn(data):
+def on_change_turn():
     """Called when player ends turn"""
-    print(data)
-    SOCKETIO.emit('change-turn', data, broadcast=True, include_self=False)
+    global P1, P2, TURN
+    if TURN == P1:
+        TURN = P2
+    else:
+        TURN = P1
+    print("Turn: ", TURN)
+    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
 
 @SOCKETIO.on("requestAllStats")
 def request_all_user_stats(data):
     """
+    Gets all the user stats
     """
     all_players = models.Player.query.all()
     DB.session.close()
     return_data = []
-    for p in all_players:
-        return_data.append({"username": p.username, "wins": p.wins, "losses": p.losses})
+    for players in all_players:
+        return_data.append({
+            "username": players.username,
+            "wins": players.wins,
+            "losses": players.losses})
     SOCKETIO.emit(
         'requestAllStatsCallback',
         return_data,
@@ -73,8 +91,7 @@ def request_all_user_stats(data):
         broadcast=False,
         include_self=True
     )
-    return
-    
+
 @SOCKETIO.on("requestStats")
 def request_user_stats(data):
     """
@@ -96,6 +113,9 @@ def request_user_stats(data):
 @APP.route('/', defaults={"filename": "index.html"})
 @APP.route('/<path:filename>')
 def index(filename):
+    """
+    Serve the index?
+    """
     return send_from_directory('./build', filename)
 
 @SOCKETIO.on("login")
@@ -109,19 +129,26 @@ def login(data):
         DB.session.close()
     else:
         username = email[:email.index('@')]
-        add_user(username,email)
-    print("user logged in",data)
+        add_user(username, email)
+    print("user logged in", data)
 
 @SOCKETIO.on("logout")
-def logout():
-    '''Logs user out'''
-    global PLAYERCOUNT
-    PLAYERCOUNT -= 1
+def logout(data):
+    """
+    Logs user out
+    """
+    global P1, P2
+    if data["user"] == P1:
+        P1 = None
+    elif data["user"] == P2:
+        P2 = None
+    else:
+        print("Invalid logout call")
     print("User logged out")
 
 def add_user(username, email):
     '''Adds new user to database'''
-    new_user = models.Player(username=username,email=email,wins=0,losses=0)
+    new_user = models.Player(username=username, email=email, wins=0, losses=0)
     DB.session.add(new_user)
     DB.session.commit()
     DB.session.close()
