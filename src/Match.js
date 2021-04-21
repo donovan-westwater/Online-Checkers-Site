@@ -28,8 +28,8 @@ function MatchComp(props) {
     const col = index % 8;
     const row = (index - col) / 8;
     const newBoard = [...board];
-    console.log(playerTurn);
-    console.log(user);
+    console.log(`Player turn: ${playerTurn}`);
+    console.log(`User: ${user}`);
     if (user === playerTurn) {
       console.log('In the if');
       if (!isSelected) {
