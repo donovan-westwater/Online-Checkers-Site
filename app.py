@@ -1,6 +1,3 @@
-"""
-Server for checkers game
-"""
 import os
 from flask import Flask, send_from_directory, json
 from flask_sqlalchemy import SQLAlchemy
@@ -12,7 +9,7 @@ APP = Flask(__name__, static_folder='./build/static')
 load_dotenv(find_dotenv())
 
 # Point SQLAlchemy to your Heroku database
-APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace('postgres', 'postgresql')
+APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL').replace('postgres','postgresql')
 # Gets rid of a warning
 APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
@@ -21,7 +18,7 @@ import models
 
 DB.create_all()
 DB.session.commit()
-
+        
 SOCKETIO = SocketIO(APP,
                     cors_allowed_origins="*",
                     json=json,
@@ -63,16 +60,12 @@ def on_change_turn(data):
 @SOCKETIO.on("requestAllStats")
 def request_all_user_stats(data):
     """
-    Gets the stats of every user in the database
     """
     all_players = models.Player.query.all()
     DB.session.close()
     return_data = []
-    for player in all_players:
-        return_data.append({
-            "username": player.username,
-            "wins": player.wins,
-            "losses": player.losses})
+    for p in all_players:
+        return_data.append({"username": p.username, "wins": p.wins, "losses": p.losses})
     SOCKETIO.emit(
         'requestAllStatsCallback',
         return_data,
@@ -80,7 +73,8 @@ def request_all_user_stats(data):
         broadcast=False,
         include_self=True
     )
-
+    return
+    
 @SOCKETIO.on("requestStats")
 def request_user_stats(data):
     """
@@ -102,9 +96,6 @@ def request_user_stats(data):
 @APP.route('/', defaults={"filename": "index.html"})
 @APP.route('/<path:filename>')
 def index(filename):
-    """
-    Docstring
-    """
     return send_from_directory('./build', filename)
 
 @SOCKETIO.on("login")
@@ -118,8 +109,8 @@ def login(data):
         DB.session.close()
     else:
         username = email[:email.index('@')]
-        add_user(username, email)
-    print("user logged in", data)
+        add_user(username,email)
+    print("user logged in",data)
 
 @SOCKETIO.on("logout")
 def logout():
@@ -130,7 +121,7 @@ def logout():
 
 def add_user(username, email):
     '''Adds new user to database'''
-    new_user = models.Player(username=username, email=email, wins=0, losses=0)
+    new_user = models.Player(username=username,email=email,wins=0,losses=0)
     DB.session.add(new_user)
     DB.session.commit()
     DB.session.close()

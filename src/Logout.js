@@ -19,23 +19,8 @@ function Logout(props) {
     <div>
       {game ? (
         <div>
-            {game ? (
-                <div>
-                    <h1>Game on</h1>
-                    <MatchComp socket={socket}> test </MatchComp>
-                </div>
-                ):(
-                <div> 
-                    <h1>Welcome {user}</h1>
-                    <StatsComponent socket={socket}/>
-                    <Game socket={socket} user={user} func={setGame}/>
-                </div>
-            )}
-            <GoogleLogout
-                clientId={clientId}
-                buttonText="Logout"
-                onLogoutSuccess={onSuccess}
-            />
+          <h1>Game on</h1>
+          <MatchComp socket={socket}> test </MatchComp>
         </div>
       ) : (
         <div>
@@ -44,7 +29,7 @@ function Logout(props) {
             {user}
           </h1>
           <StatsComponent socket={socket} />
-          <Game socekt={socket} user={user} func={setGame} />
+          <Game socket={socket} user={user} func={setGame} />
         </div>
       )}
       <GoogleLogout

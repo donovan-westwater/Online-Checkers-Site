@@ -21,7 +21,7 @@ function StatsComponent(props) {
 
   return (
     <div>
-      <button type="button" onClick={pingServerForUser()}>My Stats</button>
+      <button type="button" onClick={pingServerForUser}>My Stats</button>
       <button type="button" onClick={pingAllUserStats}>Stats</button>
       {stats.map((player, index) => (
         <tr
