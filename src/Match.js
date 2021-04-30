@@ -53,16 +53,45 @@ function MatchComp(props) {
     return index % 8;
   }
 
+  function clearCellStatesHelper() {
+    setCellStates(() => {
+      const c = [8];
+      for (let i = 0; i < 8; i += 1) {
+        const z = [];
+        for (let j = 0; j < 8; j += 1) {
+          z[j] = '';
+        }
+        c[i] = z;
+      }
+      return c;
+    });
+  }
+
+  function legalCellsHelper(row, col) {
+    const legalCells = [];
+
+    if (piece === 'O') {
+      legalCells.push([row - 1, col + 1]);
+      legalCells.push([row - 1, col - 1]);
+    }
+    if (piece === 'X') {
+      legalCells.push([row + 1, col + 1]);
+      legalCells.push([row + 1, col - 1]);
+    }
+
+    legalCells.forEach((c) => {
+      changeCellStateHelper('legal', c[0], c[1]);
+    });
+  }
+
   // Setup click function
   function onCellClick(index) {
     console.log(`Clicked on a square: ${index}`);
     console.log(`Player turn: ${playerTurn}`);
     console.log(`User: ${user}`);
-    console.log(toRow(1));
-    console.log(toCol(1));
 
-    const col = index % 8;
-    const row = (index - col) / 8;
+    const col = toCol(index);
+    const row = toRow(index);
 
     if (user === playerTurn) {
       if (!isSelected) {
@@ -71,17 +100,18 @@ function MatchComp(props) {
           setSelect(true);
           setCell(index);
           changeCellStateHelper('selected', row, col);
+          legalCellsHelper(row, col);
         }
       } else {
-        const scol = selectedCell % 8;
-        const srow = (selectedCell - scol) / 8;
+        const scol = toCol(selectedCell);
+        const srow = toRow(selectedCell);
         const scell = board[srow][scol];
 
         if (scol === col && srow === row) {
           console.log('unselected');
           setSelect(false);
           setCell(-1);
-          changeCellStateHelper('', srow, scol);
+          clearCellStatesHelper();
         } else {
           setBoard((prevBoard) => {
             const b = [...prevBoard];
@@ -95,7 +125,7 @@ function MatchComp(props) {
           console.log('MOVED!');
           setSelect(false);
           setCell(-1);
-          changeCellStateHelper('', srow, scol);
+          clearCellStatesHelper();
           // Move on to next turn here
           socket.emit('change-turn');
         }
