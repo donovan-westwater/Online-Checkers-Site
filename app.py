@@ -30,15 +30,40 @@ SOCKETIO = SocketIO(APP,
 P1 = None
 P2 = None
 TURN = None
-boardstate = []
+BOARDSTATE = [
+    ['', 'X', '', 'X', '', 'X', '', 'X'],
+    ['X', '', 'X', '', 'X', '', 'X', ''],
+    ['', 'X', '', 'X', '', 'X', '', 'X'], 
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['O', '', 'O', '', 'O', '', 'O', ''],
+    ['', 'O', '', 'O', '', 'O', '', 'O'],
+    ['O', '', 'O', '', 'O', '', 'O', '']
+]
 
-@SOCKETIO.on('board')
-def on_board(data):  # data is whatever arg you pass in your emit call on client
-    """Used for debug purposes."""
-    print(str(data))
-    # This emits the 'chat' event from the server to all clients except for
-    # the client that emmitted the event that triggered this function
-    SOCKETIO.emit('board', data, broadcast=True, include_self=False)
+@SOCKETIO.on('get-board')
+def on_get_board():
+    """Used for giving the board state to a player who just joined"""
+    global BOARDSTATE
+    SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
+    
+@SOCKETIO.on('make-move')
+def on_move(data):  # data is whatever arg you pass in your emit call on client
+    """Used for making moves"""
+    global BOARDSTATE
+    BOARDSTATE = data["board"]
+    SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
+    change_turn()
+    
+def change_turn():
+    """Called when player ends turn"""
+    global P1, P2, TURN
+    if TURN == P1:
+        TURN = P2
+    else:
+        TURN = P1
+    print("Turn: ", TURN)
+    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
 
 @SOCKETIO.on('connect-game')
 def on_connect(data):
@@ -61,18 +86,7 @@ def on_connect(data):
 
     SOCKETIO.emit('add-user', { "user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
     SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
-    #SOCKETIO.emit('join-game', PLAYERS, broadcast=True, include_self=True)
-
-@SOCKETIO.on('change-turn')
-def on_change_turn():
-    """Called when player ends turn"""
-    global P1, P2, TURN
-    if TURN == P1:
-        TURN = P2
-    else:
-        TURN = P1
-    print("Turn: ", TURN)
-    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+    on_get_board()
 
 @SOCKETIO.on("requestAllStats")
 def request_all_user_stats(data):

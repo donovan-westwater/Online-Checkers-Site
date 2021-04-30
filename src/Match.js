@@ -4,20 +4,8 @@ import { Cell } from './cell';
 
 function MatchComp(props) {
   const { socket } = props;
-  const disArr = [...Array(8)].map((v, i) => {
-    const inner = new Array(8);
-    inner.fill('');
-    for (let j = 0; j < 8; j += 1) {
-      if (i < 3) {
-        if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) inner[j] = 'X';
-      } else if (i > 4) {
-        if ((i % 2 === 0 && j % 2 === 1) || (i % 2 === 1 && j % 2 === 0)) inner[j] = 'O';
-      }
-    }
-    return inner;
-  });
 
-  const [board, setBoard] = React.useState(disArr);
+  const [board, setBoard] = React.useState([]);
   // const [playerCount, setpCount] = React.useState(0);
   const [playerTurn, setTurn] = React.useState('');
   const [user, setUser] = React.useState('');
@@ -118,7 +106,7 @@ function MatchComp(props) {
             b[srow][scol] = '';
             b[row][col] = scell;
             console.log(b);
-            socket.emit('board', { b });
+            socket.emit('make-move', { board: b });
             return b;
           });
 
@@ -138,11 +126,9 @@ function MatchComp(props) {
   // console.log("--------------");
 
   React.useEffect(() => {
-    socket.on('board', (data) => {
+    socket.on('give-board', (data) => {
       console.log(data);
-      const upBoard = data.b;
-      console.log('CALLDED');
-      setBoard(upBoard);
+      setBoard(() => data.board);
     });
 
     socket.on('change-turn', (data) => {
