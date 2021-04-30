@@ -25,11 +25,41 @@ function MatchComp(props) {
   const [isSelected, setSelect] = React.useState(false);
   const [selectedCell, setCell] = React.useState(-1);
 
+  const cellArray = [8];
+  console.log(cellArray);
+  for (let i = 0; i < 8; i += 1) {
+    const z = [];
+    for (let j = 0; j < 8; j += 1) {
+      z[j] = '';
+    }
+    cellArray[i] = z;
+  }
+
+  const [cellStates, setCellStates] = React.useState(cellArray);
+
+  function changeCellStateHelper(newState, row, col) {
+    setCellStates((prev) => {
+      const c = [...prev];
+      c[row][col] = newState;
+      return c;
+    });
+  }
+
+  function toRow(index) {
+    return (index - (index % 8)) / 8;
+  }
+
+  function toCol(index) {
+    return index % 8;
+  }
+
   // Setup click function
   function onCellClick(index) {
     console.log(`Clicked on a square: ${index}`);
     console.log(`Player turn: ${playerTurn}`);
     console.log(`User: ${user}`);
+    console.log(toRow(1));
+    console.log(toCol(1));
 
     const col = index % 8;
     const row = (index - col) / 8;
@@ -40,6 +70,7 @@ function MatchComp(props) {
           console.log('Selected');
           setSelect(true);
           setCell(index);
+          changeCellStateHelper('selected', row, col);
         }
       } else {
         const scol = selectedCell % 8;
@@ -50,6 +81,7 @@ function MatchComp(props) {
           console.log('unselected');
           setSelect(false);
           setCell(-1);
+          changeCellStateHelper('', srow, scol);
         } else {
           setBoard((prevBoard) => {
             const b = [...prevBoard];
@@ -63,6 +95,7 @@ function MatchComp(props) {
           console.log('MOVED!');
           setSelect(false);
           setCell(-1);
+          changeCellStateHelper('', srow, scol);
           // Move on to next turn here
           socket.emit('change-turn');
         }
@@ -96,15 +129,12 @@ function MatchComp(props) {
   return (
     <div role="grid" data-testid="gameboard" className="checkerboard">
       {board.map((row, rowIndex) => row.map((cell, colIndex) => {
-        // console.log(colIndex);
         const index = 8 * rowIndex + colIndex;
-        let selected = false;
-        if (index === selectedCell) selected = true;
         return (
           <Cell
             index={index}
             click={() => onCellClick(index)}
-            select={selected}
+            cellState={cellStates[rowIndex][colIndex]}
             symbol={cell}
           />
         );
