@@ -16,29 +16,32 @@ function MatchComp(props) {
     }
     return inner;
   });
+
   const [board, setBoard] = React.useState(disArr);
   // const [playerCount, setpCount] = React.useState(0);
   const [playerTurn, setTurn] = React.useState('');
   const [user, setUser] = React.useState('');
+  const [piece, setPiece] = React.useState('');
   const [isSelected, setSelect] = React.useState(false);
   const [selectedCell, setCell] = React.useState(-1);
+
   // Setup click function
   function onCellClick(index) {
     console.log(`Clicked on a square: ${index}`);
-    const col = index % 8;
-    const row = (index - col) / 8;
-    const newBoard = [...board];
     console.log(`Player turn: ${playerTurn}`);
     console.log(`User: ${user}`);
+
+    const col = index % 8;
+    const row = (index - col) / 8;
+
     if (user === playerTurn) {
-      console.log('In the if');
       if (!isSelected) {
-        console.log('Selected');
-        setSelect(true);
-        setCell(index);
+        if (board[row][col] === piece) {
+          console.log('Selected');
+          setSelect(true);
+          setCell(index);
+        }
       } else {
-        // Move part goes here
-        console.log(newBoard);
         const scol = selectedCell % 8;
         const srow = (selectedCell - scol) / 8;
         const scell = board[srow][scol];
@@ -78,7 +81,8 @@ function MatchComp(props) {
 
     socket.on('add-user', (data) => {
       console.log('add-user event');
-      setUser(data);
+      setUser(data.user);
+      setPiece(data.piece);
     });
   }, []);
 

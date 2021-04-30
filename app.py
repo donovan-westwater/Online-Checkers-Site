@@ -30,6 +30,7 @@ SOCKETIO = SocketIO(APP,
 P1 = None
 P2 = None
 TURN = None
+boardstate = []
 
 @SOCKETIO.on('board')
 def on_board(data):  # data is whatever arg you pass in your emit call on client
@@ -51,12 +52,14 @@ def on_connect(data):
         print("Initial turn", TURN)
     if P1 is None:
         P1 = data["user"]
+        piece = "O"
         print("Name: ", P1)
     else:
         P2 = data["user"]
+        piece = "X"
         print("Name: ", P2)
 
-    SOCKETIO.emit('add-user', data["user"], to=data['id'], broadcast=False, include_self=True)
+    SOCKETIO.emit('add-user', { "user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
     SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
     #SOCKETIO.emit('join-game', PLAYERS, broadcast=True, include_self=True)
 
@@ -109,15 +112,6 @@ def request_user_stats(data):
         include_self=True
     )
 
-
-@APP.route('/', defaults={"filename": "index.html"})
-@APP.route('/<path:filename>')
-def index(filename):
-    """
-    Serve the index?
-    """
-    return send_from_directory('./build', filename)
-
 @SOCKETIO.on("login")
 def login(data):
     '''Enters user info to database if not already logged in'''
@@ -145,6 +139,14 @@ def logout(data):
     else:
         print("Invalid logout call")
     print("User logged out")
+
+@APP.route('/', defaults={"filename": "index.html"})
+@APP.route('/<path:filename>')
+def index(filename):
+    """
+    Serve the index?
+    """
+    return send_from_directory('./build', filename)
 
 def add_user(username, email):
     '''Adds new user to database'''
