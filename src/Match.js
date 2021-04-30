@@ -6,24 +6,13 @@ function MatchComp(props) {
   const { socket } = props;
 
   const [board, setBoard] = React.useState([]);
-  // const [playerCount, setpCount] = React.useState(0);
   const [playerTurn, setTurn] = React.useState('');
   const [user, setUser] = React.useState('');
   const [piece, setPiece] = React.useState('');
   const [isSelected, setSelect] = React.useState(false);
   const [selectedCell, setCell] = React.useState(-1);
-
-  const cellArray = [8];
-  console.log(cellArray);
-  for (let i = 0; i < 8; i += 1) {
-    const z = [];
-    for (let j = 0; j < 8; j += 1) {
-      z[j] = '';
-    }
-    cellArray[i] = z;
-  }
-
-  const [cellStates, setCellStates] = React.useState(cellArray);
+  const [cellStates, setCellStates] = React.useState([]);
+  const [moveOrder, setMoveOrder] = React.useState([]);
 
   function changeCellStateHelper(newState, row, col) {
     setCellStates((prev) => {
@@ -33,13 +22,9 @@ function MatchComp(props) {
     });
   }
 
-  function toRow(index) {
-    return (index - (index % 8)) / 8;
-  }
+  function toRow(index) { return (index - (index % 8)) / 8; }
 
-  function toCol(index) {
-    return index % 8;
-  }
+  function toCol(index) { return index % 8; }
 
   function clearCellStatesHelper() {
     setCellStates(() => {
@@ -55,20 +40,38 @@ function MatchComp(props) {
     });
   }
 
-  function legalCellsHelper(row, col) {
+  function legalCellsHelper(row, col, canMove) {
     const legalCells = [];
 
-    if (piece === 'O') {
-      legalCells.push([row - 1, col + 1]);
-      legalCells.push([row - 1, col - 1]);
-    }
-    if (piece === 'X') {
-      legalCells.push([row + 1, col + 1]);
-      legalCells.push([row + 1, col - 1]);
-    }
+    const directions = {
+      X: [[+1, -1], [+1, +1]],
+      O: [[-1, -1], [-1, +1]],
+    };
+    console.log(canMove);
+    directions[piece].forEach((m) => {
+      let nrow = row + m[0];
+      let ncol = col + m[1];
+      if (nrow >= 0 && nrow <= 7 && ncol >= 0 && nrow <= 7) {
+        if (board[nrow][ncol] !== piece) {
+          if (board[nrow][ncol] === '') {
+            if (canMove) {
+              legalCells.push([nrow, ncol, 'selected']);
+            }
+          } else {
+            nrow += m[0];
+            ncol += m[1];
+            if (nrow >= 0 && nrow <= 7 && ncol >= 0 && nrow <= 7) {
+              if (board[nrow][ncol] === '') {
+                legalCells.push([nrow, ncol, 'legal']);
+              }
+            }
+          }
+        }
+      }
+    });
 
     legalCells.forEach((c) => {
-      changeCellStateHelper('legal', c[0], c[1]);
+      changeCellStateHelper(c[2], c[0], c[1]);
     });
   }
 
@@ -84,31 +87,39 @@ function MatchComp(props) {
     if (user === playerTurn) {
       if (!isSelected) {
         if (board[row][col] === piece) {
-          console.log('Selected');
           setSelect(true);
           setCell(index);
           changeCellStateHelper('selected', row, col);
-          legalCellsHelper(row, col);
+          legalCellsHelper(row, col, true);
         }
       } else {
         const scol = toCol(selectedCell);
         const srow = toRow(selectedCell);
-        // const scell = board[srow][scol];
 
-        if (scol === col && srow === row) {
-          console.log('unselected');
-          setSelect(false);
-          setCell(-1);
-          clearCellStatesHelper();
+        if (cellStates[row][col] === 'selected') {
+          if (moveOrder.length === 0 && row === srow && col === scol) {
+            setSelect(false);
+            setCell(-1);
+            clearCellStatesHelper();
+          } else {
+            socket.emit('make-move', {
+              srow, scol, row, col,
+            });
+
+            console.log(moveOrder);
+            setSelect(false);
+            setCell(-1);
+            clearCellStatesHelper();
+          }
         } else {
-          socket.emit('make-move', {
-            srow, scol, row, col,
+          setMoveOrder((prev) => {
+            const order = [...prev];
+            order.push([row, col]);
+            return order;
           });
-
-          console.log('MOVED!');
-          setSelect(false);
-          setCell(-1);
           clearCellStatesHelper();
+          changeCellStateHelper('selected', row, col);
+          legalCellsHelper(row, col, false);
         }
       }
     }
@@ -133,6 +144,9 @@ function MatchComp(props) {
       setUser(data.user);
       setPiece(data.piece);
     });
+
+    // since useEffect only runs once we can use this to set up the cells
+    clearCellStatesHelper();
   }, []);
 
   return (
