@@ -45,20 +45,27 @@ function MatchComp(props) {
         const scol = selectedCell % 8;
         const srow = (selectedCell - scol) / 8;
         const scell = board[srow][scol];
-        setBoard((prevBoard) => {
-          const b = [...prevBoard];
-          b[srow][scol] = '';
-          b[row][col] = scell;
-          console.log(b);
-          socket.emit('board', { b });
-          return b;
-        });
 
-        console.log('MOVED!');
-        setSelect(false);
-        setCell(-1);
-        // Move on to next turn here
-        socket.emit('change-turn');
+        if (scol === col && srow === row) {
+          console.log('unselected');
+          setSelect(false);
+          setCell(-1);
+        } else {
+          setBoard((prevBoard) => {
+            const b = [...prevBoard];
+            b[srow][scol] = '';
+            b[row][col] = scell;
+            console.log(b);
+            socket.emit('board', { b });
+            return b;
+          });
+
+          console.log('MOVED!');
+          setSelect(false);
+          setCell(-1);
+          // Move on to next turn here
+          socket.emit('change-turn');
+        }
       }
     }
   }
