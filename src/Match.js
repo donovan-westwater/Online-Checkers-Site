@@ -93,7 +93,7 @@ function MatchComp(props) {
       } else {
         const scol = toCol(selectedCell);
         const srow = toRow(selectedCell);
-        const scell = board[srow][scol];
+        // const scell = board[srow][scol];
 
         if (scol === col && srow === row) {
           console.log('unselected');
@@ -101,21 +101,14 @@ function MatchComp(props) {
           setCell(-1);
           clearCellStatesHelper();
         } else {
-          setBoard((prevBoard) => {
-            const b = [...prevBoard];
-            b[srow][scol] = '';
-            b[row][col] = scell;
-            console.log(b);
-            socket.emit('make-move', { board: b });
-            return b;
+          socket.emit('make-move', {
+            srow, scol, row, col,
           });
 
           console.log('MOVED!');
           setSelect(false);
           setCell(-1);
           clearCellStatesHelper();
-          // Move on to next turn here
-          socket.emit('change-turn');
         }
       }
     }

@@ -41,6 +41,16 @@ BOARDSTATE = [
     ['O', '', 'O', '', 'O', '', 'O', '']
 ]
 
+def change_turn():
+    """Called when player ends turn"""
+    global P1, P2, TURN
+    if TURN == P1:
+        TURN = P2
+    else:
+        TURN = P1
+    print("Turn: ", TURN)
+    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+
 @SOCKETIO.on('get-board')
 def on_get_board():
     """Used for giving the board state to a player who just joined"""
@@ -51,19 +61,11 @@ def on_get_board():
 def on_move(data):  # data is whatever arg you pass in your emit call on client
     """Used for making moves"""
     global BOARDSTATE
-    BOARDSTATE = data["board"]
+    BOARDSTATE[data["row"]][data["col"]] = BOARDSTATE[data["srow"]][data["scol"]]
+    BOARDSTATE[data["srow"]][data["scol"]] = ""
     SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
+    print("moved")
     change_turn()
-    
-def change_turn():
-    """Called when player ends turn"""
-    global P1, P2, TURN
-    if TURN == P1:
-        TURN = P2
-    else:
-        TURN = P1
-    print("Turn: ", TURN)
-    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
 
 @SOCKETIO.on('connect-game')
 def on_connect(data):
