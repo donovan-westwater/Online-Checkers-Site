@@ -11,6 +11,7 @@ export function Cell(props) {
   const row = (index - col) / 8;
   if (cellState === 'selected') type = 'selectedcell';
   else if (cellState === 'legal') type = 'legalcell';
+  else if (cellState === 'first') type = 'firstcell';
   else if ((row % 2 === 0 && col % 2 === 0) || (row % 2 === 1 && col % 2 === 1)) type = 'redcell';
   else type = 'blackcell';
   return (

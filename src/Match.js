@@ -40,7 +40,7 @@ function MatchComp(props) {
     });
   }
 
-  function legalCellsHelper(row, col, canMove) {
+  function legalCellsHelper(row, col, canMove, firstMove = false) {
     const legalCells = [];
 
     const directions = {
@@ -54,8 +54,8 @@ function MatchComp(props) {
       if (nrow >= 0 && nrow <= 7 && ncol >= 0 && nrow <= 7) {
         if (board[nrow][ncol] !== piece) {
           if (board[nrow][ncol] === '') {
-            if (canMove) {
-              legalCells.push([nrow, ncol, 'selected']);
+            if (canMove && firstMove) {
+              legalCells.push([nrow, ncol, 'first']);
             }
           } else {
             nrow += m[0];
@@ -90,33 +90,48 @@ function MatchComp(props) {
           setSelect(true);
           setCell(index);
           changeCellStateHelper('selected', row, col);
-          legalCellsHelper(row, col, true);
+          legalCellsHelper(row, col, true, true);
+          setMoveOrder((prev) => [...prev, [row, col]]);
         }
       } else {
         const scol = toCol(selectedCell);
         const srow = toRow(selectedCell);
 
         if (cellStates[row][col] === 'selected') {
-          if (moveOrder.length === 0 && row === srow && col === scol) {
+          if (moveOrder.length === 1 && row === srow && col === scol) {
             setSelect(false);
             setCell(-1);
+            setMoveOrder([]);
             clearCellStatesHelper();
           } else {
-            socket.emit('make-move', {
-              srow, scol, row, col,
+            setMoveOrder((prev) => {
+              const order = [...prev];
+              socket.emit('make-move', {
+                moves: order,
+              });
+              return order;
             });
 
             console.log(moveOrder);
+            setMoveOrder([]);
             setSelect(false);
             setCell(-1);
             clearCellStatesHelper();
           }
-        } else {
+        } else if (cellStates[row][col] === 'first') {
           setMoveOrder((prev) => {
-            const order = [...prev];
-            order.push([row, col]);
+            const order = [...prev, [row, col]];
+            socket.emit('make-move', {
+              moves: order,
+            });
             return order;
           });
+          setMoveOrder([]);
+          setSelect(false);
+          setCell(-1);
+          clearCellStatesHelper();
+        } else if (cellStates[row][col] === 'legal') {
+          setMoveOrder((prev) => [...prev, [row, col]]);
           clearCellStatesHelper();
           changeCellStateHelper('selected', row, col);
           legalCellsHelper(row, col, false);

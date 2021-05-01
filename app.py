@@ -7,6 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv, find_dotenv
 from flask_socketio import SocketIO
 
+import math
+
 APP = Flask(__name__, static_folder='./build/static')
 
 load_dotenv(find_dotenv())
@@ -61,11 +63,29 @@ def on_get_board():
 def on_move(data):  # data is whatever arg you pass in your emit call on client
     """Used for making moves"""
     global BOARDSTATE
-    BOARDSTATE[data["row"]][data["col"]] = BOARDSTATE[data["srow"]][data["scol"]]
-    BOARDSTATE[data["srow"]][data["scol"]] = ""
-    SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
-    print("moved")
-    change_turn()
+    #BOARDSTATE[data["row"]][data["col"]] = BOARDSTATE[data["srow"]][data["scol"]]
+    #BOARDSTATE[data["srow"]][data["scol"]] = ""
+    
+    moves = data["moves"]
+    print(data)
+    
+    print(moves)
+    
+    if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]] == "O") or (TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]] == "X"):
+        prev = moves[0]
+        for m in moves[1:]:
+            BOARDSTATE[m[0]][m[1]] = BOARDSTATE[prev[0]][prev[1]]
+            BOARDSTATE[prev[0]][prev[1]] = ""
+            rj = (prev[0]+m[0])/2
+            cj = (prev[1]+m[1])/2
+            print(rj, cj)
+            if(int(rj)== rj and int(cj) == cj):
+                BOARDSTATE[int(rj)][int(cj)] = ""
+            prev = m
+    
+        SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
+        print("moved")
+        change_turn()
 
 @SOCKETIO.on('connect-game')
 def on_connect(data):
