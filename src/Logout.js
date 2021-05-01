@@ -26,7 +26,7 @@ function Logout(props) {
         <div>
           <h1>
             Welcome
-            {user}
+            {` ${user}`}
           </h1>
           <StatsComponent socket={socket} />
           <Game socket={socket} user={user} func={setGame} />

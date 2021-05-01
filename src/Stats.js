@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import Table from 'react-bootstrap/Table';
 
 function StatsComponent(props) {
   const { socket } = props;
@@ -18,17 +19,22 @@ function StatsComponent(props) {
   return (
     <div>
       <button type="button" onClick={pingAllUserStats}>Stats</button>
-      {stats.map((player, index) => (
-        <tr
-          className={
-                    player.username === true ? 'bold' : null
-                  }
-        >
-          <th key={index}>{player.username}</th>
-          <th>{player.wins}</th>
-          <th>{player.losses}</th>
-        </tr>
-      ))}
+      <Table striped bordered hover size="sm">
+        <thead>
+          <th>username</th>
+          <th>wins</th>
+          <th>losses</th>
+        </thead>
+        <tbody>
+          {stats.map((player, index) => (
+            <tr>
+              <th key={index}>{player.username}</th>
+              <th>{player.wins}</th>
+              <th>{player.losses}</th>
+            </tr>
+          ))}
+        </tbody>
+      </Table>
     </div>
   );
 }
