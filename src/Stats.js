@@ -5,25 +5,26 @@ function StatsComponent(props) {
   const { socket } = props;
   const { email } = props;
   const [stats, setStats] = useState([]);
-  const [userStats, setUserStats] = useState({});
+  const [userStats, setUserStats] = useState([1, {}]);
 
   function pingAllUserStats() {
-    socket.emit('requestAllStats', { id: socket.id });
+    socket.emit('requestAllStats', { id: socket.id, email });
   }
 
-  function pingUserStats() {
-    socket.emit('requestStats', { id: socket.id, email });
-  }
+  // function pingUserStats() {
+  //   socket.emit('requestStats', { id: socket.id, email });
+  // }
 
   useEffect(() => {
     // Listener for app.py returning the userlist
     socket.on('requestAllStatsCallback', (data) => {
-      setStats(data);
+      setStats(data.all);
+      setUserStats(data.user);
     });
-    socket.on('requestStatsCallback', (data) => {
-      setUserStats(data);
-    });
-    pingUserStats();
+    // socket.on('requestStatsCallback', (data) => {
+    //   setUserStats(data);
+    // });
+    // pingUserStats();
     pingAllUserStats();
   }, []);
 
@@ -42,14 +43,17 @@ function StatsComponent(props) {
         </thead>
         <tbody>
           <tr>
-            <td>#1</td>
-            <td>{userStats.username}</td>
-            <td>{userStats.wins}</td>
-            <td>{userStats.losses}</td>
             <td>
-              {userStats.wins + userStats.losses === 0
+              #
+              {userStats[0]}
+            </td>
+            <td>{userStats[1].username}</td>
+            <td>{userStats[1].wins}</td>
+            <td>{userStats[1].losses}</td>
+            <td>
+              {userStats[1].wins + userStats[1].losses === 0
                 ? 0
-                : userStats.wins / userStats.wins + userStats.losses}
+                : userStats[1].wins / userStats[1].wins + userStats[1].losses}
               %
             </td>
           </tr>
