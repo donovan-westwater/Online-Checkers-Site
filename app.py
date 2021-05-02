@@ -33,14 +33,14 @@ P1 = None
 P2 = None
 TURN = None
 BOARDSTATE = [
-    ['', 'X', '', 'X', '', 'X', '', 'X'],
-    ['X', '', 'X', '', 'X', '', 'X', ''],
-    ['', 'X', '', 'X', '', 'X', '', 'X'], 
+    ['', 'x', '', 'x', '', 'x', '', 'x'],
+    ['x', '', 'x', '', 'x', '', 'x', ''],
+    ['', 'x', '', 'x', '', 'x', '', 'x'], 
     ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
-    ['O', '', 'O', '', 'O', '', 'O', ''],
-    ['', 'O', '', 'O', '', 'O', '', 'O'],
-    ['O', '', 'O', '', 'O', '', 'O', '']
+    ['o', '', 'o', '', 'O', '', 'o', ''],
+    ['', 'o', '', 'o', '', 'o', '', 'o'],
+    ['o', '', 'o', '', 'o', '', 'o', '']
 ]
 
 def change_turn():
@@ -71,10 +71,12 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
     
     print(moves)
     
-    if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]] == "O") or (TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]] == "X"):
+    if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == 'o') or (TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == "x"):
         prev = moves[0]
         for m in moves[1:]:
+            print(BOARDSTATE[prev[0]][prev[1]])
             BOARDSTATE[m[0]][m[1]] = BOARDSTATE[prev[0]][prev[1]]
+            print(BOARDSTATE[m[0]][m[1]])
             BOARDSTATE[prev[0]][prev[1]] = ""
             rj = (prev[0]+m[0])/2
             cj = (prev[1]+m[1])/2
@@ -99,11 +101,11 @@ def on_connect(data):
         print("Initial turn", TURN)
     if P1 is None:
         P1 = data["user"]
-        piece = "O"
+        piece = "o"
         print("Name: ", P1)
     else:
         P2 = data["user"]
-        piece = "X"
+        piece = "x"
         print("Name: ", P2)
 
     SOCKETIO.emit('add-user', { "user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)

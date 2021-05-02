@@ -40,19 +40,30 @@ function MatchComp(props) {
     });
   }
 
-  function legalCellsHelper(row, col, canMove, firstMove = false) {
+  function clear() {
+    setSelect(false);
+    setCell(-1);
+    setMoveOrder([]);
+    clearCellStatesHelper();
+  }
+
+  function legalCellsHelper(row, col, cell, canMove, firstMove = false) {
     const legalCells = [];
 
     const directions = {
-      X: [[+1, -1], [+1, +1]],
-      O: [[-1, -1], [-1, +1]],
+      x: [[+1, -1], [+1, +1]],
+      X: [[+1, -1], [+1, +1], [-1, -1], [-1, +1]],
+      o: [[-1, -1], [-1, +1]],
+      O: [[+1, -1], [+1, +1], [-1, -1], [-1, +1]],
     };
-    console.log(canMove);
-    directions[piece].forEach((m) => {
+
+    const p = board[toRow(cell)][toCol(cell)];
+    console.log(p);
+    directions[p].forEach((m) => {
       let nrow = row + m[0];
       let ncol = col + m[1];
-      if (nrow >= 0 && nrow <= 7 && ncol >= 0 && nrow <= 7) {
-        if (board[nrow][ncol] !== piece) {
+      if (nrow >= 0 && nrow <= 7 && ncol >= 0 && ncol <= 7) {
+        if (board[nrow][ncol].toLowerCase() !== piece.toLowerCase()) {
           if (board[nrow][ncol] === '') {
             if (canMove && firstMove) {
               legalCells.push([nrow, ncol, 'first']);
@@ -60,7 +71,7 @@ function MatchComp(props) {
           } else {
             nrow += m[0];
             ncol += m[1];
-            if (nrow >= 0 && nrow <= 7 && ncol >= 0 && nrow <= 7) {
+            if (nrow >= 0 && nrow <= 7 && ncol >= 0 && ncol <= 7) {
               if (board[nrow][ncol] === '') {
                 legalCells.push([nrow, ncol, 'legal']);
               }
@@ -86,11 +97,15 @@ function MatchComp(props) {
 
     if (user === playerTurn) {
       if (!isSelected) {
-        if (board[row][col] === piece) {
+        if (board[row][col].toLowerCase() === piece) {
           setSelect(true);
-          setCell(index);
+          setCell(() => {
+            const c = index;
+            legalCellsHelper(row, col, c, true, true);
+            return c;
+          });
           changeCellStateHelper('selected', row, col);
-          legalCellsHelper(row, col, true, true);
+
           setMoveOrder((prev) => [...prev, [row, col]]);
         }
       } else {
@@ -99,24 +114,14 @@ function MatchComp(props) {
 
         if (cellStates[row][col] === 'selected') {
           if (moveOrder.length === 1 && row === srow && col === scol) {
-            setSelect(false);
-            setCell(-1);
-            setMoveOrder([]);
-            clearCellStatesHelper();
+            clear();
           } else {
             setMoveOrder((prev) => {
               const order = [...prev];
-              socket.emit('make-move', {
-                moves: order,
-              });
+              socket.emit('make-move', { moves: order });
               return order;
             });
-
-            console.log(moveOrder);
-            setMoveOrder([]);
-            setSelect(false);
-            setCell(-1);
-            clearCellStatesHelper();
+            clear();
           }
         } else if (cellStates[row][col] === 'first') {
           setMoveOrder((prev) => {
@@ -126,15 +131,15 @@ function MatchComp(props) {
             });
             return order;
           });
-          setMoveOrder([]);
-          setSelect(false);
-          setCell(-1);
-          clearCellStatesHelper();
+          clear();
         } else if (cellStates[row][col] === 'legal') {
           setMoveOrder((prev) => [...prev, [row, col]]);
           clearCellStatesHelper();
           changeCellStateHelper('selected', row, col);
-          legalCellsHelper(row, col, false);
+          setCell((prev) => {
+            legalCellsHelper(row, col, prev, false);
+            return prev;
+          });
         }
       }
     }
