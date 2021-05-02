@@ -7,8 +7,7 @@ function Login(props) {
   const { socket } = props;
   const onSuccess = (res) => {
     const { email } = res.profileObj;
-    console.log(res.profileObj.name);
-    props.setUser(email.slice(0, email.indexOf('@')));
+    props.setFunc(email.slice(0, email.indexOf('@')), email, res.profileObj.imageUrl);
     socket.emit('login', res.profileObj);
     props.func(true);
   };

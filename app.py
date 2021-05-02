@@ -129,10 +129,9 @@ def on_connect(data):
     SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
     on_get_board()
 
-@SOCKETIO.on("requestAllStats")
-def request_all_user_stats(data):
+def get_users():
     """
-    Gets all the user stats
+    retrieves all the users in the database
     """
     all_players = models.Player.query.all()
     DB.session.close()
@@ -141,27 +140,28 @@ def request_all_user_stats(data):
         return_data.append({
             "username": players.username,
             "wins": players.wins,
-            "losses": players.losses})
+            "losses": players.losses,
+            "email": players.email})
+    sort_key = lambda x: 0 if (
+        x.get("wins")+x.get("losses") == 0) else x.get("wins")/(x.get("wins")+x.get("losses"))
+    return_data.sort(key=sort_key, reverse=True)
+    return return_data
+
+@SOCKETIO.on("requestAllStats")
+def request_all_user_stats(data):
+    """
+    Gets all the user stats
+    """
+    return_data = get_users()
+    print(return_data)
+    user_data = [
+        [i+1, return_data[i]] for i in range(len(return_data)) if (
+            return_data[i].get('email') == data["email"]
+        )][0] 
     SOCKETIO.emit(
         'requestAllStatsCallback',
-        return_data,
-        to=data["id"],
-        broadcast=False,
-        include_self=True
-    )
-
-@SOCKETIO.on("requestStats")
-def request_user_stats(data):
-    """
-    Queries the database for a user id and returns their stats
-    """
-    #from models import Player
-    player = models.Player.query.filter_by(id=data["usr"]).first()
-    DB.session.close()
-    return_data = {"username": player.username, "wins": player.wins, "losses": player.losses}
-    SOCKETIO.emit(
-        'requestStatsCallback',
-        return_data,
+        {'user':user_data,
+         'all':return_data},
         to=data["id"],
         broadcast=False,
         include_self=True
