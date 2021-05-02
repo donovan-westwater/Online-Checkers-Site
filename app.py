@@ -84,7 +84,22 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
             if(int(rj)== rj and int(cj) == cj):
                 BOARDSTATE[int(rj)][int(cj)] = ""
             prev = m
-    
+            
+        oCount = 0
+        xCount = 0
+        for row in BOARDSTATE:
+            for cell in row:
+                if cell == "o" or cell == "O":
+                    oCount += 1
+                if cell == "x" or cell == "X":
+                    xCount += 1
+                    
+        if oCount == 0:
+            print("X wins!")
+            #win
+        elif xCount == 0:
+            print("O wins!")
+
         SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
         print("moved")
         change_turn()
