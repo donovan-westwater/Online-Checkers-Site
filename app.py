@@ -84,6 +84,9 @@ def request_all_user_stats(data):
             "username": players.username,
             "wins": players.wins,
             "losses": players.losses})
+    sort_key = lambda x: 0 if (
+        x.get("wins")+x.get("losses") == 0) else x.get("wins")/(x.get("wins")+x.get("losses"))
+    return_data.sort(key=sort_key, reversed=True)
     SOCKETIO.emit(
         'requestAllStatsCallback',
         return_data,
