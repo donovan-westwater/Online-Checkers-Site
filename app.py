@@ -7,6 +7,8 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv, find_dotenv
 from flask_socketio import SocketIO
 
+import math
+
 APP = Flask(__name__, static_folder='./build/static')
 
 load_dotenv(find_dotenv())
@@ -30,14 +32,79 @@ SOCKETIO = SocketIO(APP,
 P1 = None
 P2 = None
 TURN = None
+BOARDSTATE = [
+    ['', 'x', '', 'x', '', 'x', '', 'x'],
+    ['x', '', 'x', '', 'x', '', 'x', ''],
+    ['', 'x', '', 'x', '', 'x', '', 'x'], 
+    ['', '', '', '', '', '', '', ''],
+    ['', '', '', '', '', '', '', ''],
+    ['o', '', 'o', '', 'o', '', 'o', ''],
+    ['', 'o', '', 'o', '', 'o', '', 'o'],
+    ['o', '', 'o', '', 'o', '', 'o', '']
+]
 
-@SOCKETIO.on('board')
-def on_board(data):  # data is whatever arg you pass in your emit call on client
-    """Used for debug purposes."""
-    print(str(data))
-    # This emits the 'chat' event from the server to all clients except for
-    # the client that emmitted the event that triggered this function
-    SOCKETIO.emit('board', data, broadcast=True, include_self=False)
+def change_turn():
+    """Called when player ends turn"""
+    global P1, P2, TURN
+    if TURN == P1:
+        TURN = P2
+    else:
+        TURN = P1
+    print("Turn: ", TURN)
+    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+
+@SOCKETIO.on('get-board')
+def on_get_board():
+    """Used for giving the board state to a player who just joined"""
+    global BOARDSTATE
+    SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
+    
+@SOCKETIO.on('make-move')
+def on_move(data):  # data is whatever arg you pass in your emit call on client
+    """Used for making moves"""
+    global BOARDSTATE
+    #BOARDSTATE[data["row"]][data["col"]] = BOARDSTATE[data["srow"]][data["scol"]]
+    #BOARDSTATE[data["srow"]][data["scol"]] = ""
+    
+    moves = data["moves"]
+    print(data)
+    
+    print(moves)
+    
+    if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == 'o') or (TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == "x"):
+        prev = moves[0]
+        for m in moves[1:]:
+            BOARDSTATE[m[0]][m[1]] = BOARDSTATE[prev[0]][prev[1]]
+            BOARDSTATE[prev[0]][prev[1]] = ""
+            rj = (prev[0]+m[0])/2
+            cj = (prev[1]+m[1])/2
+            print(rj, cj)
+            if(int(rj)== rj and int(cj) == cj):
+                BOARDSTATE[int(rj)][int(cj)] = ""
+            prev = m
+            
+            if m[0] == 0 and BOARDSTATE[m[0]][m[1]] == 'o':
+                BOARDSTATE[m[0]][m[1]] = 'O'
+            elif m[0] == 7 and BOARDSTATE[m[0]][m[1]] == 'x':
+                BOARDSTATE[m[0]][m[1]] = 'X'
+            
+        oCount = 0
+        xCount = 0
+        for row in BOARDSTATE:
+            for cell in row:
+                if cell == "o" or cell == "O":
+                    oCount += 1
+                if cell == "x" or cell == "X":
+                    xCount += 1
+                    
+        if oCount == 0:
+            print("X wins!")
+        elif xCount == 0:
+            print("O wins!")
+
+        SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
+        print("moved")
+        change_turn()
 
 @SOCKETIO.on('connect-game')
 def on_connect(data):
@@ -51,25 +118,16 @@ def on_connect(data):
         print("Initial turn", TURN)
     if P1 is None:
         P1 = data["user"]
+        piece = "o"
         print("Name: ", P1)
     else:
         P2 = data["user"]
+        piece = "x"
         print("Name: ", P2)
 
-    SOCKETIO.emit('add-user', data["user"], to=data['id'], broadcast=False, include_self=True)
+    SOCKETIO.emit('add-user', { "user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
     SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
-    #SOCKETIO.emit('join-game', PLAYERS, broadcast=True, include_self=True)
-
-@SOCKETIO.on('change-turn')
-def on_change_turn():
-    """Called when player ends turn"""
-    global P1, P2, TURN
-    if TURN == P1:
-        TURN = P2
-    else:
-        TURN = P1
-    print("Turn: ", TURN)
-    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+    on_get_board()
 
 def get_users():
     """
@@ -109,33 +167,6 @@ def request_all_user_stats(data):
         include_self=True
     )
 
-# @SOCKETIO.on("requestStats")
-# def request_user_stats(data):
-#     """
-#     Queries the database for a user id and returns their stats
-#     """
-#     #from models import Player
-#     get_users()
-#     player = models.Player.query.filter_by(email=data["email"]).first()
-#     DB.session.close()
-#     return_data = {"username": player.username, "wins": player.wins, "losses": player.losses}
-#     SOCKETIO.emit(
-#         'requestStatsCallback',
-#         return_data,
-#         to=data["id"],
-#         broadcast=False,
-#         include_self=True
-#     )
-
-
-@APP.route('/', defaults={"filename": "index.html"})
-@APP.route('/<path:filename>')
-def index(filename):
-    """
-    Serve the index?
-    """
-    return send_from_directory('./build', filename)
-
 @SOCKETIO.on("login")
 def login(data):
     '''Enters user info to database if not already logged in'''
@@ -163,6 +194,14 @@ def logout(data):
     else:
         print("Invalid logout call")
     print("User logged out")
+
+@APP.route('/', defaults={"filename": "index.html"})
+@APP.route('/<path:filename>')
+def index(filename):
+    """
+    Serve the index?
+    """
+    return send_from_directory('./build', filename)
 
 def add_user(username, email):
     '''Adds new user to database'''
