@@ -74,9 +74,7 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
     if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == 'o') or (TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == "x"):
         prev = moves[0]
         for m in moves[1:]:
-            print(BOARDSTATE[prev[0]][prev[1]])
             BOARDSTATE[m[0]][m[1]] = BOARDSTATE[prev[0]][prev[1]]
-            print(BOARDSTATE[m[0]][m[1]])
             BOARDSTATE[prev[0]][prev[1]] = ""
             rj = (prev[0]+m[0])/2
             cj = (prev[1]+m[1])/2
@@ -84,6 +82,11 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
             if(int(rj)== rj and int(cj) == cj):
                 BOARDSTATE[int(rj)][int(cj)] = ""
             prev = m
+            
+            if m[0] == 0 and BOARDSTATE[m[0]][m[1]] == 'o':
+                BOARDSTATE[m[0]][m[1]] = 'O'
+            elif m[0] == 7 and BOARDSTATE[m[0]][m[1]] == 'x':
+                BOARDSTATE[m[0]][m[1]] = 'X'
             
         oCount = 0
         xCount = 0
