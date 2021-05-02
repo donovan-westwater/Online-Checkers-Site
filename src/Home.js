@@ -7,10 +7,18 @@ function Home(props) {
   const [logged, setLogin] = useState(false);
   const [user, setUser] = useState('');
   const [email, setEmail] = useState('');
+  const [image, setImage] = useState('');
+
+  function setAll(newUser, newEmail, newImage) {
+    setUser(newUser);
+    setEmail(newEmail);
+    setImage(newImage);
+  }
+
   return (
     <div>
-      {logged ? <Logout socket={socket} func={setLogin} email={email} user={user} />
-        : <Login socket={socket} func={setLogin} emailFunc={setEmail} setUser={setUser} />}
+      {logged ? <Logout socket={socket} func={setLogin} email={email} image={image} user={user} />
+        : <Login socket={socket} func={setLogin} setFunc={setAll} />}
     </div>
   );
 }

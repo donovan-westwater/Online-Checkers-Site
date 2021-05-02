@@ -29,7 +29,6 @@ function StatsComponent(props) {
 
   return (
     <div>
-      {/* <button type="button" onClick={pingAllUserStats}>Stats</button> */}
       <p><b>Personal Stats</b></p>
       <Table striped bordered hover variant="dark" size="sm">
         <thead>
