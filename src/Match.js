@@ -20,6 +20,7 @@ function MatchComp(props) {
   // const [playerCount, setpCount] = React.useState(0);
   const [playerTurn, setTurn] = React.useState('');
   const [user, setUser] = React.useState('');
+  const [spectators, setSpectators] = React.useState([]);
   const [isSelected, setSelect] = React.useState(false);
   const [selectedCell, setCell] = React.useState(-1);
   // Setup click function
@@ -80,6 +81,17 @@ function MatchComp(props) {
       console.log('add-user event');
       setUser(data);
     });
+    
+    socket.on('add-spectator', (data) => {
+      console.log('add-spectator event');
+      setSpectators((prevSpectators) => {
+          const b = [...prevSpectators];
+          console.log(b);
+          b.append(data["user"])
+          socket.emit('spectators', { b });
+          return b;
+        });
+    });
   }, []);
 
   return (
@@ -98,6 +110,7 @@ function MatchComp(props) {
           />
         );
       }))}
+    <ul>{spectators}</ul>
     </div>
   );
 }

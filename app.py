@@ -39,11 +39,21 @@ def on_board(data):  # data is whatever arg you pass in your emit call on client
     # the client that emmitted the event that triggered this function
     SOCKETIO.emit('board', data, broadcast=True, include_self=False)
 
+@SOCKETIO.on('spectators')
+def on_spectators(data):  # data is whatever arg you pass in your emit call on client
+    """Used for debug purposes."""
+    print(str(data))
+    # This emits the 'chat' event from the server to all clients except for
+    # the client that emmitted the event that triggered this function
+    SOCKETIO.emit('add-spectator', data, broadcast=True, include_self=False)
+
+
 @SOCKETIO.on('connect-game')
 def on_connect(data):
     """Called on connect"""
     print('User connected and joined the game!')
     global P1, P2, TURN
+    spectator = False
     print("ID: ", data['id'])
 
     if TURN is None:
@@ -52,12 +62,18 @@ def on_connect(data):
     if P1 is None:
         P1 = data["user"]
         print("Name: ", P1)
-    else:
+    elif P2 is None:
         P2 = data["user"]
         print("Name: ", P2)
-
-    SOCKETIO.emit('add-user', data["user"], to=data['id'], broadcast=False, include_self=True)
-    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+    else:
+        spectator = True
+        print("Spectator")
+    #Emit new spectator, if spectator, add user if spots still open
+    if spectator:
+        SOCKETIO.emit('add-spectator', data["user"], to=data['id'], broadcast=False, include_self=True)
+    else:
+        SOCKETIO.emit('add-user', data["user"], to=data['id'], broadcast=False, include_self=True)
+        SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
     #SOCKETIO.emit('join-game', PLAYERS, broadcast=True, include_self=True)
 
 @SOCKETIO.on('change-turn')
