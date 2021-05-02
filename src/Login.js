@@ -10,6 +10,7 @@ function Login(props) {
     console.log(res.profileObj.name);
     props.setUser(email.slice(0, email.indexOf('@')));
     socket.emit('login', res.profileObj);
+    props.emailFunc(email);
     props.func(true);
   };
   const onFailure = (res) => {

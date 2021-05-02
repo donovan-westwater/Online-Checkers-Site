@@ -98,7 +98,7 @@ def request_user_stats(data):
     Queries the database for a user id and returns their stats
     """
     #from models import Player
-    player = models.Player.query.filter_by(id=data["usr"]).first()
+    player = models.Player.query.filter_by(email=data["email"]).first()
     DB.session.close()
     return_data = {"username": player.username, "wins": player.wins, "losses": player.losses}
     SOCKETIO.emit(
