@@ -31,7 +31,7 @@ function StatsComponent(props) {
     <div>
       {/* <button type="button" onClick={pingAllUserStats}>Stats</button> */}
       <p><b>Personal Stats</b></p>
-      <Table striped bordered hover size="sm">
+      <Table striped bordered hover variant="dark" size="sm">
         <thead>
           <tr>
             <th>Rank</th>
@@ -57,7 +57,7 @@ function StatsComponent(props) {
         </tbody>
       </Table>
       <p><b>Leaderboard</b></p>
-      <Table striped bordered hover size="sm">
+      <Table striped bordered hover variant="dark" size="sm">
         <thead>
           <tr>
             <th>Rank</th>
