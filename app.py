@@ -38,7 +38,7 @@ BOARDSTATE = [
     ['', 'x', '', 'x', '', 'x', '', 'x'], 
     ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
-    ['o', '', 'o', '', 'O', '', 'o', ''],
+    ['o', '', 'o', '', 'o', '', 'o', ''],
     ['', 'o', '', 'o', '', 'o', '', 'o'],
     ['o', '', 'o', '', 'o', '', 'o', '']
 ]
@@ -99,7 +99,6 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
                     
         if oCount == 0:
             print("X wins!")
-            #win
         elif xCount == 0:
             print("O wins!")
 
