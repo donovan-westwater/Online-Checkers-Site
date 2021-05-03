@@ -1,4 +1,5 @@
 import React from 'react';
+import Button from 'react-bootstrap/Button';
 
 function Game(props) {
   const { func } = props;
@@ -13,7 +14,7 @@ function Game(props) {
 
   return (
     <div>
-      <button type="button" onClick={onClick}>New Game</button>
+      <Button variant="info" onClick={onClick}>New Game</Button>
     </div>
   );
 }

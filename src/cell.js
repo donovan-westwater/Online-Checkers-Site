@@ -4,12 +4,14 @@ import './Match.css';
 
 export function Cell(props) {
   const {
-    index, click, select, symbol,
+    index, click, cellState, symbol,
   } = props;
   let type = '';
   const col = index % 8;
   const row = (index - col) / 8;
-  if (select) type = 'selectedcell';
+  if (cellState === 'selected') type = 'selectedcell';
+  else if (cellState === 'legal') type = 'legalcell';
+  else if (cellState === 'first') type = 'firstcell';
   else if ((row % 2 === 0 && col % 2 === 0) || (row % 2 === 1 && col % 2 === 1)) type = 'redcell';
   else type = 'blackcell';
   return (
@@ -21,14 +23,12 @@ export function Cell(props) {
 export default 'not cell';
 Cell.propTypes = {
   symbol: PropTypes.string,
-  select: PropTypes.bool,
   click: PropTypes.func,
   index: PropTypes.number,
 };
 
 Cell.defaultProps = {
   symbol: '',
-  select: false,
   click: null,
   index: 0,
 };
