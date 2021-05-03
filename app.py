@@ -66,39 +66,40 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
     moves = data["moves"]
     print(data)
     print(moves)
-    if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == 'o') or (TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == "x"):
+    if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == 'o') or (
+            TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == "x"):
         prev = moves[0]
-        for m in moves[1:]:
-            BOARDSTATE[m[0]][m[1]] = BOARDSTATE[prev[0]][prev[1]]
+        for move in moves[1:]:
+            BOARDSTATE[move[0]][move[1]] = BOARDSTATE[prev[0]][prev[1]]
             BOARDSTATE[prev[0]][prev[1]] = ""
-            rj = (prev[0]+m[0])/2
-            cj = (prev[1]+m[1])/2
-            print(rj, cj)
-            if(int(rj) == rj and int(cj) == cj):
-                BOARDSTATE[int(rj)][int(cj)] = ""
-            prev = m
-            if m[0] == 0 and BOARDSTATE[m[0]][m[1]] == 'o':
-                BOARDSTATE[m[0]][m[1]] = 'O'
-            elif m[0] == 7 and BOARDSTATE[m[0]][m[1]] == 'x':
-                BOARDSTATE[m[0]][m[1]] = 'X'
-        oCount = 0
-        xCount = 0
+            row_j = (prev[0]+move[0])/2
+            col_j = (prev[1]+move[1])/2
+            print(row_j, col_j)
+            if(int(row_j) == row_j and int(col_j) == col_j):
+                BOARDSTATE[int(row_j)][int(col_j)] = ""
+            prev = move
+            if move[0] == 0 and BOARDSTATE[move[0]][move[1]] == 'o':
+                BOARDSTATE[move[0]][move[1]] = 'O'
+            elif move[0] == 7 and BOARDSTATE[move[0]][move[1]] == 'x':
+                BOARDSTATE[move[0]][move[1]] = 'X'
+        o_count = 0
+        x_count = 0
         for row in BOARDSTATE:
             for cell in row:
-                if cell == "o" or cell == "O":
-                    oCount += 1
-                if cell == "x" or cell == "X":
-                    xCount += 1
-        if oCount == 0 or xCount == 0:
+                if cell.lower() == "o":
+                    o_count += 1
+                if cell.lower() == "x":
+                    x_count += 1
+        if o_count == 0 or x_count == 0:
             p1_model = DB.session.query(models.Player).filter_by(username=P1).first()
             p2_model = DB.session.query(models.Player).filter_by(username=P2).first()
-            if oCount == 0:
+            if o_count == 0:
                 print(f"Scores {p2_model.wins}, {p1_model.losses}")
                 p2_model.wins += 1
                 p1_model.losses += 1
                 print("X wins!")
                 print(f"Scores {p2_model.wins}, {p1_model.losses}")
-            elif xCount == 0:
+            elif x_count == 0:
                 print(f"Scores {p1_model.wins}, {p2_model.losses}")
                 p1_model.wins += 1
                 p2_model.losses += 1
@@ -137,7 +138,9 @@ def on_connect(data):
     if spectator:
         SOCKETIO.emit('add-spectator', {"user":data["user"]}, broadcast=True, include_self=True)
     else:
-        SOCKETIO.emit('add-user', {"user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
+        SOCKETIO.emit('add-user', {
+            "user": data["user"],
+            "piece": piece}, to=data['id'], broadcast=False, include_self=True)
         SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
         on_get_board()
 
