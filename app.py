@@ -111,6 +111,7 @@ def on_connect(data):
     """Called on connect"""
     print('User connected and joined the game!')
     global P1, P2, TURN
+    spectator = False
     print("ID: ", data['id'])
 
     if TURN is None:
@@ -120,14 +121,20 @@ def on_connect(data):
         P1 = data["user"]
         piece = "o"
         print("Name: ", P1)
-    else:
+    elif P2 is None:
         P2 = data["user"]
         piece = "x"
         print("Name: ", P2)
-
-    SOCKETIO.emit('add-user', { "user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
-    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
-    on_get_board()
+    else:
+        spectator = True
+        print("Spectator")
+    #Emit new spectator, if spectator, add user if spots still open
+    if spectator:
+        SOCKETIO.emit('add-spectator', {"user":data["user"]}, broadcast=True, include_self=True)
+    else:
+        SOCKETIO.emit('add-user', { "user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
+        SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+        on_get_board()
 
 def get_users():
     """

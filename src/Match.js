@@ -8,6 +8,7 @@ function MatchComp(props) {
   const [board, setBoard] = React.useState([]);
   const [playerTurn, setTurn] = React.useState('');
   const [user, setUser] = React.useState('');
+  const [spectators, setSpectators] = React.useState([]);
   const [piece, setPiece] = React.useState('');
   const [isSelected, setSelect] = React.useState(false);
   const [selectedCell, setCell] = React.useState(-1);
@@ -165,13 +166,22 @@ function MatchComp(props) {
       setPiece(data.piece);
     });
 
-    // since useEffect only runs once we can use this to set up the cells
     clearCellStatesHelper();
+    
+    socket.on('add-spectator', (data) => {
+      console.log('add-spectator event');
+      setSpectators((prevSpectators) => {
+        const s = [...prevSpectators];
+        console.log(data.user);
+        s.push(data.user);
+        return s;
+      });
+    });
   }, []);
-
   return (
-    <div role="grid" data-testid="gameboard" className="checkerboard">
-      {board.map((row, rowIndex) => row.map((cell, colIndex) => {
+    <div>
+      <div role="grid" data-testid="gameboard" className="checkerboard">
+        {board.map((row, rowIndex) => row.map((cell, colIndex) => {
         const index = 8 * rowIndex + colIndex;
         return (
           <Cell
@@ -181,7 +191,10 @@ function MatchComp(props) {
             symbol={cell}
           />
         );
-      }))}
+        }))}
+
+      </div>
+      <li><ul>{spectators}</ul></li>
     </div>
   );
 }
