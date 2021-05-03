@@ -81,36 +81,38 @@ function MatchComp(props) {
       console.log('add-user event');
       setUser(data);
     });
-    
+
     socket.on('add-spectator', (data) => {
       console.log('add-spectator event');
       setSpectators((prevSpectators) => {
-          const b = [...prevSpectators];
-          console.log(b);
-          b.append(data["user"])
-          socket.emit('spectators', { b });
-          return b;
-        });
+        const s = [...prevSpectators];
+        console.log(data.user);
+        s.push(data.user);
+        return s;
+      });
     });
   }, []);
 
   return (
-    <div role="grid" data-testid="gameboard" className="checkerboard">
-      {board.map((row, rowIndex) => row.map((cell, colIndex) => {
+    <div>
+      <div role="grid" data-testid="gameboard" className="checkerboard">
+        {board.map((row, rowIndex) => row.map((cell, colIndex) => {
         // console.log(colIndex);
-        const index = 8 * rowIndex + colIndex;
-        let selected = false;
-        if (index === selectedCell) selected = true;
-        return (
-          <Cell
-            index={index}
-            click={() => onCellClick(index)}
-            select={selected}
-            symbol={cell}
-          />
-        );
-      }))}
-    <ul>{spectators}</ul>
+          const index = 8 * rowIndex + colIndex;
+          let selected = false;
+          if (index === selectedCell) selected = true;
+          return (
+            <Cell
+              index={index}
+              click={() => onCellClick(index)}
+              select={selected}
+              symbol={cell}
+            />
+          );
+        }))}
+
+      </div>
+      <li><ul>{spectators}</ul></li>
     </div>
   );
 }
