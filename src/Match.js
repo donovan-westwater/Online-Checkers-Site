@@ -167,7 +167,7 @@ function MatchComp(props) {
     });
 
     clearCellStatesHelper();
-    
+
     socket.on('add-spectator', (data) => {
       console.log('add-spectator event');
       setSpectators((prevSpectators) => {
@@ -182,15 +182,15 @@ function MatchComp(props) {
     <div>
       <div role="grid" data-testid="gameboard" className="checkerboard">
         {board.map((row, rowIndex) => row.map((cell, colIndex) => {
-        const index = 8 * rowIndex + colIndex;
-        return (
-          <Cell
-            index={index}
-            click={() => onCellClick(index)}
-            cellState={cellStates[rowIndex][colIndex]}
-            symbol={cell}
-          />
-        );
+          const index = 8 * rowIndex + colIndex;
+          return (
+            <Cell
+              index={index}
+              click={() => onCellClick(index)}
+              cellState={cellStates[rowIndex][colIndex]}
+              symbol={cell}
+            />
+          );
         }))}
 
       </div>
