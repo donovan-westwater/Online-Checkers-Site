@@ -3,6 +3,7 @@
 .checkerboard{
   width: 300px; /* Total horizontal dimensions */
 	height: 300px;
+  margin: auto;
 	display: grid; /* Enables CSS Grid */
   align-self: flex-start;
 	grid-template-columns: repeat(8, 1fr); /* Total horizontal space broken into 8 columns */
