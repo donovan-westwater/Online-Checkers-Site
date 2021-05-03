@@ -53,7 +53,7 @@ function StatsComponent(props) {
             <td>
               {userStats[1].wins + userStats[1].losses === 0
                 ? 0
-                : userStats[1].wins / userStats[1].wins + userStats[1].losses}
+                : ((userStats[1].wins) / (userStats[1].wins + userStats[1].losses)) * 100}
               %
             </td>
           </tr>
