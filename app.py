@@ -7,7 +7,6 @@ from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv, find_dotenv
 from flask_socketio import SocketIO
 
-import math
 
 APP = Flask(__name__, static_folder='./build/static')
 
@@ -35,7 +34,7 @@ TURN = None
 BOARDSTATE = [
     ['', 'x', '', 'x', '', 'x', '', 'x'],
     ['x', '', 'x', '', 'x', '', 'x', ''],
-    ['', 'x', '', 'x', '', 'x', '', 'x'], 
+    ['', 'x', '', 'x', '', 'x', '', 'x'],
     ['', '', '', '', '', '', '', ''],
     ['', '', '', '', '', '', '', ''],
     ['o', '', 'o', '', 'o', '', 'o', ''],
@@ -57,20 +56,16 @@ def change_turn():
 def on_get_board():
     """Used for giving the board state to a player who just joined"""
     global BOARDSTATE
-    SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
-    
+    SOCKETIO.emit('give-board', {"board": BOARDSTATE}, broadcast=True, include_self=True)
 @SOCKETIO.on('make-move')
 def on_move(data):  # data is whatever arg you pass in your emit call on client
     """Used for making moves"""
     global BOARDSTATE
     #BOARDSTATE[data["row"]][data["col"]] = BOARDSTATE[data["srow"]][data["scol"]]
     #BOARDSTATE[data["srow"]][data["scol"]] = ""
-    
     moves = data["moves"]
     print(data)
-    
     print(moves)
-    
     if (TURN == P1 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == 'o') or (TURN == P2 and BOARDSTATE[moves[0][0]][moves[0][1]].lower() == "x"):
         prev = moves[0]
         for m in moves[1:]:
@@ -79,15 +74,13 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
             rj = (prev[0]+m[0])/2
             cj = (prev[1]+m[1])/2
             print(rj, cj)
-            if(int(rj)== rj and int(cj) == cj):
+            if(int(rj) == rj and int(cj) == cj):
                 BOARDSTATE[int(rj)][int(cj)] = ""
             prev = m
-            
             if m[0] == 0 and BOARDSTATE[m[0]][m[1]] == 'o':
                 BOARDSTATE[m[0]][m[1]] = 'O'
             elif m[0] == 7 and BOARDSTATE[m[0]][m[1]] == 'x':
                 BOARDSTATE[m[0]][m[1]] = 'X'
-            
         oCount = 0
         xCount = 0
         for row in BOARDSTATE:
@@ -96,13 +89,25 @@ def on_move(data):  # data is whatever arg you pass in your emit call on client
                     oCount += 1
                 if cell == "x" or cell == "X":
                     xCount += 1
-                    
-        if oCount == 0:
-            print("X wins!")
-        elif xCount == 0:
-            print("O wins!")
+        if oCount == 0 or xCount == 0:
+            p1_model = DB.session.query(models.Player).filter_by(username=P1).first()
+            p2_model = DB.session.query(models.Player).filter_by(username=P2).first()
+            if oCount == 0:
+                print(f"Scores {p2_model.wins}, {p1_model.losses}")
+                p2_model.wins += 1
+                p1_model.losses += 1
+                print("X wins!")
+                print(f"Scores {p2_model.wins}, {p1_model.losses}")
+            elif xCount == 0:
+                print(f"Scores {p1_model.wins}, {p2_model.losses}")
+                p1_model.wins += 1
+                p2_model.losses += 1
+                print("O wins!")
+                print(f"Scores {p1_model.wins}, {p2_model.losses}")
+            DB.session.commit()
+            DB.session.close()
 
-        SOCKETIO.emit('give-board', { "board": BOARDSTATE }, broadcast=True, include_self=True)
+        SOCKETIO.emit('give-board', {"board": BOARDSTATE}, broadcast=True, include_self=True)
         print("moved")
         change_turn()
 
@@ -132,7 +137,7 @@ def on_connect(data):
     if spectator:
         SOCKETIO.emit('add-spectator', {"user":data["user"]}, broadcast=True, include_self=True)
     else:
-        SOCKETIO.emit('add-user', { "user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
+        SOCKETIO.emit('add-user', {"user": data["user"], "piece": piece}, to=data['id'], broadcast=False, include_self=True)
         SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
         on_get_board()
 
@@ -164,7 +169,7 @@ def request_all_user_stats(data):
     user_data = [
         [i+1, return_data[i]] for i in range(len(return_data)) if (
             return_data[i].get('email') == data["email"]
-        )][0] 
+        )][0]
     SOCKETIO.emit(
         'requestAllStatsCallback',
         {'user':user_data,
