@@ -54,6 +54,7 @@ def change_turn():
 
 @SOCKETIO.on('reset')
 def on_reset():
+    """Resets the game for everyone"""
     global P1, BOARDSTATE, TURN
     TURN = P1
     BOARDSTATE = [
