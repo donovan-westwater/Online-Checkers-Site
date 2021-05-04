@@ -177,9 +177,23 @@ function MatchComp(props) {
         return s;
       });
     });
+    
+    socket.on('renove-spectator', (data) => {
+      console.log('remove-spectator event');
+      setSpectators((prevSpectators) => {
+        const s = [...prevSpectators];
+        const out = s.filter(function(value,index,arr){
+          return value != data.user;
+        });
+        return out;
+      });
   }, []);
   return (
     <div>
+      <div>
+        Current Turn:
+        {playerTurn}
+      </div>
       <div role="grid" data-testid="gameboard" className="checkerboard">
         {board.map((row, rowIndex) => row.map((cell, colIndex) => {
           const index = 8 * rowIndex + colIndex;
