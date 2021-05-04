@@ -23,6 +23,10 @@ function Logout(props) {
   };
   return (
     <div>
+      <h1>
+        Welcome
+        {` ${user}`}
+      </h1>
       {game ? (
         <div>
           <h1>Game on</h1>
@@ -30,10 +34,6 @@ function Logout(props) {
         </div>
       ) : (
         <div>
-          <h1>
-            Welcome
-            {` ${user}`}
-          </h1>
           <Container>
             <Row>
               <Col>

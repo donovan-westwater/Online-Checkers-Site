@@ -52,11 +52,30 @@ def change_turn():
     print("Turn: ", TURN)
     SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
 
+@SOCKETIO.on('reset')
+def on_reset():
+    """Resets the game for everyone"""
+    global P1, BOARDSTATE, TURN
+    TURN = P1
+    BOARDSTATE = [
+        ['', 'x', '', 'x', '', 'x', '', 'x'],
+        ['x', '', 'x', '', 'x', '', 'x', ''],
+        ['', 'x', '', 'x', '', 'x', '', 'x'],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['o', '', 'o', '', 'o', '', 'o', ''],
+        ['', 'o', '', 'o', '', 'o', '', 'o'],
+        ['o', '', 'o', '', 'o', '', 'o', '']
+    ]
+    SOCKETIO.emit('give-board', {"board": BOARDSTATE}, broadcast=True, include_self=True)
+    SOCKETIO.emit('change-turn', TURN, broadcast=True, include_self=True)
+
 @SOCKETIO.on('get-board')
 def on_get_board():
     """Used for giving the board state to a player who just joined"""
     global BOARDSTATE
     SOCKETIO.emit('give-board', {"board": BOARDSTATE}, broadcast=True, include_self=True)
+
 @SOCKETIO.on('make-move')
 def on_move(data):  # data is whatever arg you pass in your emit call on client
     """Used for making moves"""
