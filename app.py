@@ -199,7 +199,9 @@ def logout(data):
     elif data["user"] == P2:
         P2 = None
     else:
-        print("Invalid logout call")
+        print("Spectator logging out")
+        SOCKETIO.emit('remove-spectator', {"user":data["user"]}, broadcast=True, include_self=True)
+        #print("Invalid logout call")
     print("User logged out")
 
 @APP.route('/', defaults={"filename": "index.html"})

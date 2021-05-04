@@ -177,22 +177,21 @@ function MatchComp(props) {
         return s;
       });
     });
-    
-    socket.on('renove-spectator', (data) => {
+
+    socket.on('remove-spectator', (data) => {
       console.log('remove-spectator event');
       setSpectators((prevSpectators) => {
         const s = [...prevSpectators];
-        const out = s.filter(function(value,index,arr){
-          return value != data.user;
-        });
+        const out = s.filter((value) => value !== data.user);
         return out;
       });
+    });
   }, []);
   return (
     <div>
       <div>
         Current Turn:
-        {playerTurn}
+        {` ${playerTurn}`}
       </div>
       <div role="grid" data-testid="gameboard" className="checkerboard">
         {board.map((row, rowIndex) => row.map((cell, colIndex) => {
@@ -206,7 +205,6 @@ function MatchComp(props) {
             />
           );
         }))}
-
       </div>
       <li><ul>{spectators}</ul></li>
     </div>
