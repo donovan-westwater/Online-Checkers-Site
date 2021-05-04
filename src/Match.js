@@ -1,6 +1,7 @@
 import React from 'react';
 import './Match.css';
 import { Cell } from './cell';
+import ResetButton from './ResetButton';
 
 function MatchComp(props) {
   const { socket } = props;
@@ -194,6 +195,7 @@ function MatchComp(props) {
         }))}
 
       </div>
+      <ResetButton socket={socket} />
       <li><ul>{spectators}</ul></li>
     </div>
   );
