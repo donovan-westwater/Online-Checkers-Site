@@ -49,6 +49,7 @@ function Logout(props) {
       )}
       <GoogleLogout
         clientId={clientId}
+        theme="dark"
         buttonText="Logout"
         onLogoutSuccess={onSuccess}
       />

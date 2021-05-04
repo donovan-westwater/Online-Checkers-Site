@@ -53,7 +53,7 @@ function Login(props) {
         <h2>Why does it matter?</h2>
         <p>
           Sometimes it is just easier to go to a website and enjoy a game.
-          Picture this: you are on trip with friends and out of nowhere you get the sudden
+          Picture this: You are on trip with friends and out of nowhere you get the sudden
           urge to play checkers. You might say &quot;Oh no, what can I do now?&quot;
           don&apos;t fear, Online Checkers is here. Visit our site and you can play
           with your friends(or ditch them and play with anyone else in the world)
@@ -72,7 +72,7 @@ function Login(props) {
             <Card.Body>
               <Card.Title>Felix Luciano Salomon</Card.Title>
               <Card.Text>
-                Something something github link
+                <a href="https://github.com/faluciano">Github</a>
               </Card.Text>
             </Card.Body>
           </Card>
@@ -81,7 +81,7 @@ function Login(props) {
             <Card.Body>
               <Card.Title>Charles Crider</Card.Title>
               <Card.Text>
-                Something something github link
+                <a href="https://github.com/CKCritter">Github</a>
               </Card.Text>
             </Card.Body>
           </Card>
@@ -90,7 +90,7 @@ function Login(props) {
             <Card.Body>
               <Card.Title>Donovan Westwater</Card.Title>
               <Card.Text>
-                Something something github link
+                <a href="https://github.com/donovan-westwater">Github</a>
               </Card.Text>
             </Card.Body>
           </Card>
