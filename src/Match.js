@@ -178,9 +178,22 @@ function MatchComp(props) {
         return s;
       });
     });
+
+    socket.on('remove-spectator', (data) => {
+      console.log('remove-spectator event');
+      setSpectators((prevSpectators) => {
+        const s = [...prevSpectators];
+        const out = s.filter((value) => value !== data.user);
+        return out;
+      });
+    });
   }, []);
   return (
     <div>
+      <div>
+        Current Turn:
+        {` ${playerTurn}`}
+      </div>
       <div role="grid" data-testid="gameboard" className="checkerboard">
         {board.map((row, rowIndex) => row.map((cell, colIndex) => {
           const index = 8 * rowIndex + colIndex;
@@ -193,7 +206,6 @@ function MatchComp(props) {
             />
           );
         }))}
-
       </div>
       <ResetButton socket={socket} />
       <li><ul>{spectators}</ul></li>
